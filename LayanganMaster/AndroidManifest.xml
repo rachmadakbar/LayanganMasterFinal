@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.andengine.examples"
+    android:versionCode="46"
+    android:versionName="1.4.6" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="8" />
+
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="game.Test"
+            android:label="@string/title_activity_test" >
+        </activity>
+        <activity
+            android:name="game.StartStory"
+            android:label="@string/title_activity_start_story" >
+        </activity>
+        <activity
+            android:name="game.EndStory"
+            android:label="@string/title_activity_end_story" >
+        </activity>
+        <activity
+            android:name="game.Splash"
+            android:label="@string/title_activity_splash" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="game.Menu"
+            android:label="@string/title_activity_menu" >
+        </activity>
+        <activity
+            android:name="game.SettingActivity"
+            android:label="@string/title_activity_setting" >
+        </activity>
+        <activity
+            android:name="game.Bengkel"
+            android:label="@string/title_activity_bengkel" >
+        </activity>
+        <activity
+            android:name="game.Piala"
+            android:label="@string/title_activity_piala" >
+        </activity>
+        <activity
+            android:name="game.Status"
+            android:label="@string/title_activity_status" >
+        </activity>
+        <activity
+            android:name="game.PilihLayangan"
+            android:label="@string/title_activity_pilih_layangan" >
+        </activity>
+    </application>
+
+</manifest>

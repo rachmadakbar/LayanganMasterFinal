@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">LayanganMaster</string>
+    <string name="title_activity_test">Test</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_start_story">StartStory</string>
+    <string name="title_activity_end_story">EndStory</string>
+    <string name="title_activity_splash">Layangan Master</string>
+    <string name="title_activity_layangan_master">LayanganMaster</string>
+    <string name="title_activity_menu">Menu</string>
+    <string name="title_activity_setting">SettingActivity</string>
+    <string name="title_activity_bengkel">Bengkel</string>
+    <string name="title_activity_piala">Piala</string>
+    <string name="title_activity_status">Status</string>
+    <string name="title_activity_pilih_layangan">PilihLayangan</string>
+
+</resources>
