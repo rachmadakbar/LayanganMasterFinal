@@ -73,7 +73,8 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 
 		private ITextureRegion mKiteTextureRegion, mBoxTextureRegion, mCoinScoreTextureRegion, 
 		mButtonUpTextureRegion, mButtonDownTextureRegion,  mBackgroundTextureRegion;
-		private Sprite kite, background, coinScore, powerBox1, powerBox2, powerBox3, buttonUp, buttonDown, fireItem;
+		private Sprite kite, background, coinScore, powerBox1, powerBox2, powerBox3, buttonUp, buttonDown, fire, fire2, fire3, 
+		water, water2, water3, shield, shield2, shield3;
 		private int accellerometerSpeedX;
 		private int accellerometerSpeedY;
 		private SensorManager sensorManager;
@@ -107,19 +108,21 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		private LinkedList ShieldLL;
 		private LinkedList ShieldToBeAdded;
 		
-		private String box1;
-		private String box2;
-		private String box3;
-		private int pointer;
+		private String box1 = "";
+		private String box2 = "";
+		private String box3 = "";
+		private int pointer = 1;
+		
+		private int healthPoin = 1000;
 		
 		private LinkedList BirdLLRight;
 		private LinkedList BirdLLLeft;
 		private LinkedList BirdToBeAddedRight;
 		private LinkedList BirdToBeAddedLeft;
 		
-		/*untuk text perolehan coin*/
+		/*untuk text perolehan coin dan HP*/
 		private Font mFont;
-		private Text scoreText;
+		private Text scoreText, healthPoinText;
 		
 		/*HUD game*/
 		private HUD gameHUD;
@@ -296,9 +299,18 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		scoreText = new Text(CAMERA_WIDTH - 50, 10, mFont, "                    ", getVertexBufferObjectManager());
 		scene.attachChild(scoreText);
 		
-//		fireItem = new Sprite ((CAMERA_WIDTH/2) - mFireTextureRegion.getWidth(), (CAMERA_HEIGHT/2) - mFireTextureRegion.getHeight(), mFireTextureRegion, this.getVertexBufferObjectManager());
-//		scene.attachChild(fireItem);
-		
+		healthPoinText = new Text(10, 10, mFont, "Health Poins: 1000    ", getVertexBufferObjectManager());
+		scene.attachChild(healthPoinText);
+				
+		fire = new Sprite(powerBox1.getX() + 8, powerBox1.getY() - 50, mFireTextureRegion, this.getVertexBufferObjectManager());
+		fire2 = new Sprite(powerBox1.getX() + 8, powerBox1.getY() - 90, mFireTextureRegion, this.getVertexBufferObjectManager());
+		fire3 = new Sprite(powerBox1.getX() + 8, powerBox1.getY() - 130, mFireTextureRegion, this.getVertexBufferObjectManager());
+		water = new Sprite(powerBox2.getX() + 8, powerBox2.getY() - 50, mWaterTextureRegion, this.getVertexBufferObjectManager());
+		water2 = new Sprite(powerBox2.getX() + 8, powerBox2.getY() - 90, mWaterTextureRegion, this.getVertexBufferObjectManager());
+		water3 = new Sprite(powerBox2.getX() + 8, powerBox2.getY() - 130, mWaterTextureRegion, this.getVertexBufferObjectManager());
+		shield = new Sprite(powerBox3.getX() + 8, powerBox3.getY() - 50, mShieldTextureRegion, this.getVertexBufferObjectManager());
+		shield2 = new Sprite(powerBox3.getX() + 8, powerBox3.getY() - 90, mShieldTextureRegion, this.getVertexBufferObjectManager());
+		shield3 = new Sprite(powerBox3.getX() + 8, powerBox3.getY() - 130, mShieldTextureRegion, this.getVertexBufferObjectManager());
 		
 		return scene;
 		
@@ -426,7 +438,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		Random rand = new Random();
 		int tmp = rand.nextInt(2);
 		if (tmp == 1 ){
-			int type = rand.nextInt(2);
+			int type = rand.nextInt(3);
 			if (type == 0){
 				float y = camera.getHeight() + mFireTextureRegion.getHeight();
 				float minX = mFireTextureRegion.getWidth();
@@ -480,7 +492,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 				float rangeX = maxX - minX;
 				float x = rand.nextFloat() * rangeX + minX;
 
-				Sprite Shield = new Sprite(x, y, this.mWaterTextureRegion.deepCopy(),
+				Sprite Shield = new Sprite(x, y, this.mShieldTextureRegion.deepCopy(),
 						this.getVertexBufferObjectManager());
 
 				int minDurationShield = 3;
@@ -617,13 +629,9 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 				}
 
 				if (hitFire) {
-					_fire.setPosition((CAMERA_WIDTH/2) - powerBox1.getX() + 10, CAMERA_HEIGHT - powerBox1.getY() + 10);
+//					_fire.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
 					removeSprite(_fire, fire);
-					
-					//scene.attachChild(_fire);
-					
-					//scene.attachChild(powerBox1);
-					
+					fireAddToBox();
 					hitFire = false;
 				}
 				
@@ -638,8 +646,8 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 
 				if (hitWater) {
 					removeSprite(_water, water);
+					waterAddToBox();
 					hitWater = false;
-//					addToBox("water", _water);
 				}
 			}
 			
@@ -652,7 +660,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 
 				if (hitShield) {
 					removeSprite(_shield, shield);
-//					addToBox("shield", _shield);
+					shieldAddToBox();
 					hitShield = false;			
 				}
 			}
@@ -687,7 +695,8 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 
 				if (hit) {
 					removeSprite(_bird, birdRight);
-					
+					healthPoin = healthPoin - 100;
+					healthPoinText.setText("Health Poin: "+ String.valueOf(healthPoin));
 					hit = false;
 					
 					
@@ -701,7 +710,8 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 					}
 					if (hit) {
 						removeSprite(_bird, birdLeft);
-				
+						healthPoin = healthPoin - 100;
+						healthPoinText.setText("Health Poin: "+ String.valueOf(healthPoin));
 						hit = false;
 													
 					}
@@ -725,6 +735,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		});
 		it.remove();
 	}
+	
 	
 	
 //	public void createCoinScoreHUD(){
@@ -751,29 +762,25 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 				new ITimerCallback() {
 			@Override
 			public void onTimePassed(TimerHandler pTimerHandler) {
-					if (centerY <= tL)
-	    				centerY = tL;
-	            	
-					else{
-	    				centerY -= 2;
-	            		kite.setPosition(centerX, centerY);	
-	            	}
+				if (centerY <= tL){
+					centerY = tL;
+				}   
+				else{
+	    			centerY -= 2;
+	            	kite.setPosition(centerX, centerY);	
+	            }
 			}
 		});
 		
 		// our button
-		buttonUp = new ButtonSprite(this.CAMERA_WIDTH - mButtonUpTextureRegion.getWidth()-10, CAMERA_HEIGHT - mButtonUpTextureRegion.getHeight()-10, mButtonUpTextureRegion, this.getVertexBufferObjectManager())
-		{
+		buttonUp = new ButtonSprite(this.CAMERA_WIDTH - mButtonUpTextureRegion.getWidth()-10, CAMERA_HEIGHT - mButtonUpTextureRegion.getHeight()-10, mButtonUpTextureRegion, this.getVertexBufferObjectManager()){
 			@Override
-			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY)
-			{
-				if (pSceneTouchEvent.isActionDown())
-				{
+			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY){
+				if (pSceneTouchEvent.isActionDown()){
 					mEngine.registerUpdateHandler(tUp);
 
 				}
-				else if (pSceneTouchEvent.isActionUp())
-				{
+				else if (pSceneTouchEvent.isActionUp()){
 					mEngine.unregisterUpdateHandler(tUp);
 					
 				}
@@ -787,14 +794,13 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 				new ITimerCallback() {
 					@Override
 					public void onTimePassed(TimerHandler pTimerHandler) {
-							if (centerY >= bL)
-			    				centerY = bL;
-			            	
-							else{
-			    				centerY += 2;
-			            		kite.setPosition(centerX, centerY);
-			            	}
-						
+						if (centerY >= bL){
+							centerY = bL;
+						}
+						else{
+			    			centerY += 2;
+			            	kite.setPosition(centerX, centerY);
+			            }
 					}
 				});
 		
@@ -820,6 +826,167 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 	    camera.setHUD(gameHUD);
 	}
 	
+	public void fireAddToBox(){
+		if (pointer > 3 ){
+			pointer = 1;
+		}
+		if (pointer == 1){
+			if (box1 ==""){
+				fire.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+				scene.attachChild(fire);
+			}else if (box1 == "water"){
+				scene.detachChild(water);
+				fire.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+				scene.attachChild(fire);
+			}else if (box1 == "shield"){
+				scene.detachChild(shield);
+				fire.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+				scene.attachChild(fire);
+			}
+			box1 = "fire";
+			++pointer;
+		}
+		else if (pointer == 2){
+			if (box2 ==""){
+				fire2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+				scene.attachChild(fire2);
+			}else if (box2 == "water"){
+				scene.detachChild(water2);
+				fire2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+				scene.attachChild(fire2);
+			}else if (box2 == "shield"){
+				scene.detachChild(shield2);
+				fire2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+				scene.attachChild(fire2);
+			}
+			box2 = "fire";
+			++pointer;
+		}
+		else if (pointer == 3){
+			if (box3 ==""){
+				fire3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+				scene.attachChild(fire3);
+			}else if (box3 == "water"){
+				scene.detachChild(water3);
+				fire3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+				scene.attachChild(fire3);
+			}else if (box3 == "shield"){
+				scene.detachChild(shield3);
+				fire3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+				scene.attachChild(fire3);
+			}
+			box3 = "fire";
+			++pointer;
+		}	
+	}
+	
+	public void waterAddToBox(){
+		if (pointer > 3 ){
+			pointer = 1;
+		}
+		if (pointer == 1){
+			if (box1 ==""){
+				water.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+				scene.attachChild(water);
+			}else if (box1 == "fire"){
+				scene.detachChild(fire);
+				water.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+				scene.attachChild(water);
+			}else if (box1 == "shield"){
+				scene.detachChild(shield);
+				water.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+				scene.attachChild(water);
+			}
+			box1 = "water";
+			++pointer;
+		}
+		else if (pointer == 2){
+			if (box2 ==""){
+				water2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+				scene.attachChild(water2);
+			}else if (box2 == "fire"){
+				scene.detachChild(fire2);
+				water2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+				scene.attachChild(water2);
+			}else if (box2 == "shield"){
+				scene.detachChild(shield2);
+				water2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+				scene.attachChild(water2);
+			}
+			box2 = "water";
+			++pointer;
+		}
+		else if (pointer == 3){
+			if (box3 ==""){
+				water3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+				scene.attachChild(water3);
+			}else if (box3 == "fire"){
+				scene.detachChild(fire3);
+				water3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+				scene.attachChild(water3);
+			}else if (box3 == "shield"){
+				scene.detachChild(shield3);
+				water3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+				scene.attachChild(water3);
+			}
+			box3 = "water";
+			++pointer;
+		}	
+	}
+	
+	public void shieldAddToBox(){
+		if (pointer > 3 ){
+			pointer = 1;
+		}
+		if (pointer == 1){
+			if (box1 ==""){
+				shield.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+				scene.attachChild(shield);
+			}else if (box1 == "fire"){
+				scene.detachChild(fire);
+				shield.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+				scene.attachChild(shield);
+			}else if (box1 == "water"){
+				scene.detachChild(water);
+				shield.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+				scene.attachChild(shield);
+			}
+			box1 = "shield";
+			++pointer;
+		}
+		else if (pointer == 2){
+			if (box2 ==""){
+				shield2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+				scene.attachChild(shield2);
+			}else if (box2 == "fire"){
+				scene.detachChild(fire2);
+				shield2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+				scene.attachChild(shield2);
+			}else if (box2 == "water"){
+				scene.detachChild(water2);
+				shield2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+				scene.attachChild(shield2);
+			}
+			box2 = "shield";
+			++pointer;
+		}
+		else if (pointer == 3){
+			if (box3 ==""){
+				shield3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+				scene.attachChild(shield3);
+			}else if (box3 == "fire"){
+				scene.detachChild(fire3);
+				shield3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+				scene.attachChild(shield3);
+			}else if (box3 == "water"){
+				scene.detachChild(water3);
+				shield3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+				scene.attachChild(shield3);
+			}
+			box3 = "shield";
+			++pointer;
+		}	
+	}
 	
 	
 	@Override

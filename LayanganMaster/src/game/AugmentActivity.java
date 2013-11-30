@@ -74,7 +74,8 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 
 			private ITextureRegion mKiteTextureRegion, mBoxTextureRegion, mCoinScoreTextureRegion, 
 			mButtonUpTextureRegion, mButtonDownTextureRegion;
-			private Sprite kite,coinScore, powerBox, buttonUp, buttonDown;
+			private Sprite kite, coinScore, powerBox1, powerBox2, powerBox3, buttonUp, buttonDown, fire, fire2, fire3, 
+			water, water2, water3, shield, shield2, shield3;
 			private int accellerometerSpeedX;
 			private int accellerometerSpeedY;
 			private SensorManager sensorManager;
@@ -82,11 +83,11 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			private float centerY;
 			private Camera camera;
 			private BitmapTextureAtlas mBitmapTextureAtlas, mItemBitmapTextureAtlas;
-			//static int HPGame = game.Menu.player.HP;
-
+			
 			/*buat sprite burung*/
 			private BuildableBitmapTextureAtlas mBirdBitmapTextureAtlas;
-			private TiledTextureRegion mBirdTextureRegion;
+			private TiledTextureRegion mBirdTextureRegionRight;
+			private TiledTextureRegion mBirdTextureRegionLeft;
 			
 			/*untuk sprite coin*/
 			private ITextureRegion mCoinTextureRegion;
@@ -105,17 +106,21 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			private LinkedList ShieldLL;
 			private LinkedList ShieldToBeAdded;
 			
-			private String box1;
-			private String box2;
-			private String box3;
-			private int pointer;
+			private String box1 = "";
+			private String box2 = "";
+			private String box3 = "";
+			private int pointer = 1;
 			
-			private LinkedList BirdLL;
-			private LinkedList BirdToBeAdded;
+			private int healthPoin = 1000;
+					
+			private LinkedList BirdLLRight;
+			private LinkedList BirdLLLeft;
+			private LinkedList BirdToBeAddedRight;
+			private LinkedList BirdToBeAddedLeft;
 			
 			/*untuk text perolehan coin*/
 			private Font mFont;
-			private Text scoreText;
+			private Text scoreText, healthPoinText;
 			
 			/*HUD game*/
 			private HUD gameHUD;
@@ -184,7 +189,8 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			this.mItemBitmapTextureAtlas.load();
 			
 			this.mBirdBitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(), 512, 256, TextureOptions.NEAREST);
-			this.mBirdTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBirdBitmapTextureAtlas, this, "bird1.png", 4, 1);
+			this.mBirdTextureRegionRight = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBirdBitmapTextureAtlas, this, "bird1.png", 4, 1);
+			this.mBirdTextureRegionLeft = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBirdBitmapTextureAtlas, this, "bird2.png", 4, 1);
 
 			try {
 				this.mBirdBitmapTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 0, 1));
@@ -248,8 +254,10 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			this.WaterToBeAdded = new LinkedList<Sprite>();
 			this.ShieldLL = new LinkedList<Sprite>();
 			this.ShieldToBeAdded = new LinkedList<Sprite>();
-			this.BirdLL = new LinkedList<Sprite>();
-			this.BirdToBeAdded = new LinkedList<Sprite>();
+			this.BirdLLRight = new LinkedList<Sprite>();
+			this.BirdLLLeft = new LinkedList<Sprite>();
+			this.BirdToBeAddedLeft = new LinkedList<Sprite>();
+			this.BirdToBeAddedRight = new LinkedList<Sprite>();
 			
 			createCoinSpriteTimeHandler();
 			scene.registerUpdateHandler(coinHandler);
@@ -262,23 +270,30 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			
 			createControllers();
 			
-			Sprite Box1 = new Sprite((CAMERA_WIDTH/2) - mBoxTextureRegion.getWidth() - 30, CAMERA_HEIGHT - mBoxTextureRegion.getHeight()-10, mBoxTextureRegion, this.getVertexBufferObjectManager() );
-			scene.attachChild(Box1);
+			powerBox1 = new Sprite((CAMERA_WIDTH/2) - mBoxTextureRegion.getWidth() - 30, CAMERA_HEIGHT - mBoxTextureRegion.getHeight()-10, mBoxTextureRegion, this.getVertexBufferObjectManager() );
+			scene.attachChild(powerBox1);
 			
-			Sprite Box2 = new Sprite((CAMERA_WIDTH/2)+ 5 - 30, CAMERA_HEIGHT - mBoxTextureRegion.getHeight()-10, mBoxTextureRegion, this.getVertexBufferObjectManager() );
-			scene.attachChild(Box2);
+			powerBox2 = new Sprite((CAMERA_WIDTH/2)+ 5 - 30, CAMERA_HEIGHT - mBoxTextureRegion.getHeight()-10, mBoxTextureRegion, this.getVertexBufferObjectManager() );
+			scene.attachChild(powerBox2);
 			
-			Sprite Box3 = new Sprite((CAMERA_WIDTH/2) + mBoxTextureRegion.getWidth()+ 10 - 30, CAMERA_HEIGHT - mBoxTextureRegion.getHeight()-10, mBoxTextureRegion, this.getVertexBufferObjectManager() );
-			scene.attachChild(Box3);
-			
-			box1 = "";
-			box2 = "";
-			box3 = "";
-			
-			pointer = 0;
+			powerBox3 = new Sprite((CAMERA_WIDTH/2) + mBoxTextureRegion.getWidth()+ 10 - 30, CAMERA_HEIGHT - mBoxTextureRegion.getHeight()-10, mBoxTextureRegion, this.getVertexBufferObjectManager() );
+			scene.attachChild(powerBox3);
 			
 			scoreText = new Text(CAMERA_WIDTH - 50, 10, mFont, "                    ", getVertexBufferObjectManager());
 			scene.attachChild(scoreText);
+			
+			healthPoinText = new Text(10, 10, mFont, "Health Poins: 1000    ", getVertexBufferObjectManager());
+			scene.attachChild(healthPoinText);
+			
+			fire = new Sprite(powerBox1.getX() + 8, powerBox1.getY() - 50, mFireTextureRegion, this.getVertexBufferObjectManager());
+			fire2 = new Sprite(powerBox1.getX() + 8, powerBox1.getY() - 90, mFireTextureRegion, this.getVertexBufferObjectManager());
+			fire3 = new Sprite(powerBox1.getX() + 8, powerBox1.getY() - 130, mFireTextureRegion, this.getVertexBufferObjectManager());
+			water = new Sprite(powerBox2.getX() + 8, powerBox2.getY() - 50, mWaterTextureRegion, this.getVertexBufferObjectManager());
+			water2 = new Sprite(powerBox2.getX() + 8, powerBox2.getY() - 90, mWaterTextureRegion, this.getVertexBufferObjectManager());
+			water3 = new Sprite(powerBox2.getX() + 8, powerBox2.getY() - 130, mWaterTextureRegion, this.getVertexBufferObjectManager());
+			shield = new Sprite(powerBox3.getX() + 8, powerBox3.getY() - 50, mShieldTextureRegion, this.getVertexBufferObjectManager());
+			shield2 = new Sprite(powerBox3.getX() + 8, powerBox3.getY() - 90, mShieldTextureRegion, this.getVertexBufferObjectManager());
+			shield3 = new Sprite(powerBox3.getX() + 8, powerBox3.getY() - 130, mShieldTextureRegion, this.getVertexBufferObjectManager());
 			
 			return scene;
 			
@@ -460,7 +475,7 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 					float rangeX = maxX - minX;
 					float x = rand.nextFloat() * rangeX + minX;
 
-					Sprite Shield = new Sprite(x, y, this.mWaterTextureRegion.deepCopy(),
+					Sprite Shield = new Sprite(x, y, this.mShieldTextureRegion.deepCopy(),
 							this.getVertexBufferObjectManager());
 
 					int minDurationShield = 3;
@@ -496,26 +511,47 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 		
 		public void addBird(){
 			Random rand = new Random();
-			float x = camera.getWidth() + mBirdTextureRegion.getWidth();
-			float minY = mBirdTextureRegion.getHeight();
-			float maxY = camera.getHeight() - mBirdTextureRegion.getHeight();
+			float x = camera.getWidth() + mBirdTextureRegionRight.getWidth();
+			float minY = mBirdTextureRegionRight.getHeight();
+			float maxY = camera.getHeight() - mBirdTextureRegionRight.getHeight();
 			float rangeY = maxY - minY;
 			float y = rand.nextFloat() * rangeY + minY;
 			
-			final AnimatedSprite bird = new AnimatedSprite(x, y, this.mBirdTextureRegion.deepCopy(), this.getVertexBufferObjectManager());
-			bird.animate(100);
+			float a = camera.getWidth() + mBirdTextureRegionRight.getWidth();
+			float minB = mBirdTextureRegionRight.getHeight();
+			float maxB = camera.getHeight() - mBirdTextureRegionRight.getHeight();
+			float rangeB = maxB - minB;
+			float b = rand.nextFloat() * rangeB + minB;
+			
+			final AnimatedSprite birdRight = new AnimatedSprite(x, y, this.mBirdTextureRegionRight.deepCopy(), this.getVertexBufferObjectManager());
+			birdRight.animate(100);
+			
+			final AnimatedSprite birdLeft = new AnimatedSprite(a, b, this.mBirdTextureRegionLeft.deepCopy(), this.getVertexBufferObjectManager());
+			birdLeft.animate(100);
+			
 			
 			int minDuration = 3;
 			int maxDuration = 6;
 			int rangeDuration = maxDuration - minDuration;
 			int actualDuration = rand.nextInt(rangeDuration) + minDuration;
 			
-			MoveXModifier mod = new MoveXModifier(actualDuration,
-					-bird.getWidth(), bird.getX());
-
-			bird.registerEntityModifier(mod.deepCopy());
-			this.BirdToBeAdded.add(bird);
-			scene.attachChild(bird);
+			int minLeft = 3;
+			int maxLeft = 5;
+			int rangeLeft = maxLeft - minLeft;
+			int actualLeft = rand.nextInt(rangeLeft) + minLeft;
+			
+			MoveXModifier modRight = new MoveXModifier(actualDuration,
+					-birdRight.getWidth(), birdRight.getX());
+			
+			MoveXModifier modLeft = new MoveXModifier(actualLeft, 
+					birdLeft.getX(), -birdLeft.getWidth());
+			
+			birdRight.registerEntityModifier(modRight.deepCopy());
+			birdLeft.registerEntityModifier(modLeft.deepCopy());
+			this.BirdToBeAddedRight.add(birdRight);
+			this.BirdToBeAddedLeft.add(birdLeft);
+			this.scene.attachChild(birdRight);
+			this.scene.attachChild(birdLeft);
 		}
 		
 		IUpdateHandler coinHandler = new IUpdateHandler (){
@@ -568,14 +604,18 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 				boolean hitWater = false;
 				boolean hitShield = false;
 				
-				
 				while (fire.hasNext()){
 					_fire = fire.next();
 
 					if (_fire.collidesWith(kite)) {
-						
-						box1 = "fire";
-						
+						hitFire = true;
+					}
+
+					if (hitFire) {
+//						_fire.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+						removeSprite(_fire, fire);
+						fireAddToBox();
+						hitFire = false;
 					}
 					
 				}
@@ -589,8 +629,8 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 
 					if (hitWater) {
 						removeSprite(_water, water);
+						waterAddToBox();
 						hitWater = false;
-						addToBox("water", _water);
 					}
 				}
 				
@@ -603,7 +643,7 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 
 					if (hitShield) {
 						removeSprite(_shield, shield);
-						addToBox("shield", _shield);
+						shieldAddToBox();
 						hitShield = false;			
 					}
 				}
@@ -623,28 +663,47 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			public void reset() {
 			}
 			public void onUpdate(final float pSecondsElapsed) {
-				Iterator<Sprite> bird = BirdLL.iterator();
+				Iterator<Sprite> birdRight = BirdLLRight.iterator();
+				Iterator<Sprite> birdLeft = BirdLLLeft.iterator();
 				Sprite _bird;
 				boolean hit = false;
 
 				// iterating over the targets
-				while (bird.hasNext()) {
-					_bird = bird.next();
+				while (birdRight.hasNext()) {
+					_bird = birdRight.next();
 
 					if (_bird.collidesWith(kite)) {
 						hit = true;
 					}
 
 					if (hit) {
-						removeSprite(_bird, bird);
-						
+						removeSprite(_bird, birdRight);
+						healthPoin = healthPoin - 100;
+						healthPoinText.setText("Health Poin: "+ String.valueOf(healthPoin));
 						hit = false;
 						
 						
 					}
 				}
-				BirdLL.addAll(BirdToBeAdded);
-				BirdToBeAdded.clear();	
+				// iterating over the targets
+				while (birdLeft.hasNext()) {
+					_bird = birdLeft.next();
+						if (_bird.collidesWith(kite)) {
+							hit = true;
+						}
+						if (hit) {
+							removeSprite(_bird, birdLeft);
+							healthPoin = healthPoin - 100;
+							healthPoinText.setText("Health Poin: "+ String.valueOf(healthPoin));
+							hit = false;
+														
+						}
+				}
+				
+				BirdLLRight.addAll(BirdToBeAddedRight);
+				BirdLLLeft.addAll(BirdToBeAddedLeft);
+				BirdToBeAddedRight.clear();	
+				BirdToBeAddedLeft.clear();
 			}
 		};
 		
@@ -679,35 +738,31 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 				
 			final int tL = 20;
 			final int bL = CAMERA_HEIGHT - (int) kite.getHeight() - 50;
+			
+			/*Handler untuk button*/
 			tUp = new TimerHandler(0.01f, true,
 					new ITimerCallback() {
 				@Override
 				public void onTimePassed(TimerHandler pTimerHandler) {
-						if (centerY <= tL)
-		    				centerY = tL;
-		            	
-						else{
-		    				centerY -= 2;
-		            		kite.setPosition(centerX, centerY);
-		            		
-		            	}
-					
+					if (centerY <= tL){
+						centerY = tL;
+					}   
+					else{
+		    			centerY -= 2;
+		            	kite.setPosition(centerX, centerY);	
+		            }
 				}
 			});
 			
 			// our button
-			buttonUp = new ButtonSprite(this.CAMERA_WIDTH - mButtonUpTextureRegion.getWidth()-10, CAMERA_HEIGHT - mButtonUpTextureRegion.getHeight()-10, mButtonUpTextureRegion, this.getVertexBufferObjectManager())
-			{
+			buttonUp = new ButtonSprite(this.CAMERA_WIDTH - mButtonUpTextureRegion.getWidth()-10, CAMERA_HEIGHT - mButtonUpTextureRegion.getHeight()-10, mButtonUpTextureRegion, this.getVertexBufferObjectManager()){
 				@Override
-				public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY)
-				{
-					if (pSceneTouchEvent.isActionDown())
-					{
+				public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY){
+					if (pSceneTouchEvent.isActionDown()){
 						mEngine.registerUpdateHandler(tUp);
 
 					}
-					else if (pSceneTouchEvent.isActionUp())
-					{
+					else if (pSceneTouchEvent.isActionUp()){
 						mEngine.unregisterUpdateHandler(tUp);
 						
 					}
@@ -715,44 +770,37 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 				}
 			};
 			
-						// our button
 			
+			/*Handler untuk button down*/
 			tDown = new TimerHandler(0.01f, true,
 					new ITimerCallback() {
 						@Override
 						public void onTimePassed(TimerHandler pTimerHandler) {
-								if (centerY >= bL)
-				    				centerY = bL;
-				            	
-								else{
-				    				centerY += 2;
-				            		kite.setPosition(centerX, centerY);
-				            	}
-							
+							if (centerY >= bL){
+								centerY = bL;
+							}
+							else{
+				    			centerY += 2;
+				            	kite.setPosition(centerX, centerY);
+				            }
 						}
 					});
 			
-			buttonDown = new ButtonSprite(10, CAMERA_HEIGHT - mButtonDownTextureRegion.getHeight()-10, mButtonDownTextureRegion, this.getVertexBufferObjectManager())
-			{
+			// our button
+			buttonDown = new ButtonSprite(10, CAMERA_HEIGHT - mButtonDownTextureRegion.getHeight()-10, mButtonDownTextureRegion, this.getVertexBufferObjectManager()){
 				
 				@Override
-		 		public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY)
-				{
-					if (pSceneTouchEvent.isActionDown())
-					{
+		 		public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY){
+					if (pSceneTouchEvent.isActionDown()){
 						mEngine.registerUpdateHandler(tDown);
-						
 					}
-					if (pSceneTouchEvent.isActionUp())
-					{
+					if (pSceneTouchEvent.isActionUp()){
 						mEngine.unregisterUpdateHandler(tDown);
 					}
 					return true;
 				}	
 			};
 			
-			
-		    
 		    gameHUD.registerTouchArea(buttonUp);
 		    gameHUD.registerTouchArea(buttonDown);
 		    gameHUD.attachChild(buttonUp);
@@ -760,25 +808,166 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 		    camera.setHUD(gameHUD);
 		}
 		
-		public void addToBox(String item, Sprite sprite){
-			if (pointer <= 2){
-				if (box1 == ""){
-					box1 = item;
-//					sprite.setPosition((CAMERA_WIDTH/2) - mBoxTextureRegion.getWidth() - 30, CAMERA_HEIGHT - mBoxTextureRegion.getHeight()-10);
-//					scene.attachChild(sprite);
-					++pointer;	
-				}else if (box2 == "" ){
-					box2 = item;
-					
-					++pointer;
-				}else if (box3 == ""){
-					box3 = item;
-					
-					++pointer;
-				}
-			}else {
-				pointer = 0;
+		public void fireAddToBox(){
+			if (pointer > 3 ){
+				pointer = 1;
 			}
+			if (pointer == 1){
+				if (box1 ==""){
+					fire.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+					scene.attachChild(fire);
+				}else if (box1 == "water"){
+					scene.detachChild(water);
+					fire.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+					scene.attachChild(fire);
+				}else if (box1 == "shield"){
+					scene.detachChild(shield);
+					fire.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+					scene.attachChild(fire);
+				}
+				box1 = "fire";
+				++pointer;
+			}
+			else if (pointer == 2){
+				if (box2 ==""){
+					fire2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+					scene.attachChild(fire2);
+				}else if (box2 == "water"){
+					scene.detachChild(water2);
+					fire2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+					scene.attachChild(fire2);
+				}else if (box2 == "shield"){
+					scene.detachChild(shield2);
+					fire2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+					scene.attachChild(fire2);
+				}
+				box2 = "fire";
+				++pointer;
+			}
+			else if (pointer == 3){
+				if (box3 ==""){
+					fire3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+					scene.attachChild(fire3);
+				}else if (box3 == "water"){
+					scene.detachChild(water3);
+					fire3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+					scene.attachChild(fire3);
+				}else if (box3 == "shield"){
+					scene.detachChild(shield3);
+					fire3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+					scene.attachChild(fire3);
+				}
+				box3 = "fire";
+				++pointer;
+			}	
+		}
+		
+		public void waterAddToBox(){
+			if (pointer > 3 ){
+				pointer = 1;
+			}
+			if (pointer == 1){
+				if (box1 ==""){
+					water.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+					scene.attachChild(water);
+				}else if (box1 == "fire"){
+					scene.detachChild(fire);
+					water.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+					scene.attachChild(water);
+				}else if (box1 == "shield"){
+					scene.detachChild(shield);
+					water.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+					scene.attachChild(water);
+				}
+				box1 = "water";
+				++pointer;
+			}
+			else if (pointer == 2){
+				if (box2 ==""){
+					water2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+					scene.attachChild(water2);
+				}else if (box2 == "fire"){
+					scene.detachChild(fire2);
+					water2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+					scene.attachChild(water2);
+				}else if (box2 == "shield"){
+					scene.detachChild(shield2);
+					water2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+					scene.attachChild(water2);
+				}
+				box2 = "water";
+				++pointer;
+			}
+			else if (pointer == 3){
+				if (box3 ==""){
+					water3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+					scene.attachChild(water3);
+				}else if (box3 == "fire"){
+					scene.detachChild(fire3);
+					water3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+					scene.attachChild(water3);
+				}else if (box3 == "shield"){
+					scene.detachChild(shield3);
+					water3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+					scene.attachChild(water3);
+				}
+				box3 = "water";
+				++pointer;
+			}	
+		}
+		
+		public void shieldAddToBox(){
+			if (pointer > 3 ){
+				pointer = 1;
+			}
+			if (pointer == 1){
+				if (box1 ==""){
+					shield.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+					scene.attachChild(shield);
+				}else if (box1 == "fire"){
+					scene.detachChild(fire);
+					shield.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+					scene.attachChild(shield);
+				}else if (box1 == "water"){
+					scene.detachChild(water);
+					shield.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
+					scene.attachChild(shield);
+				}
+				box1 = "shield";
+				++pointer;
+			}
+			else if (pointer == 2){
+				if (box2 ==""){
+					shield2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+					scene.attachChild(shield2);
+				}else if (box2 == "fire"){
+					scene.detachChild(fire2);
+					shield2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+					scene.attachChild(shield2);
+				}else if (box2 == "water"){
+					scene.detachChild(water2);
+					shield2.setPosition(powerBox2.getX() + 8, powerBox2.getY() + 10);
+					scene.attachChild(shield2);
+				}
+				box2 = "shield";
+				++pointer;
+			}
+			else if (pointer == 3){
+				if (box3 ==""){
+					shield3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+					scene.attachChild(shield3);
+				}else if (box3 == "fire"){
+					scene.detachChild(fire3);
+					shield3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+					scene.attachChild(shield3);
+				}else if (box3 == "water"){
+					scene.detachChild(water3);
+					shield3.setPosition(powerBox3.getX() + 8, powerBox3.getY() + 10);
+					scene.attachChild(shield3);
+				}
+				box3 = "shield";
+				++pointer;
+			}	
 		}
 		
 		@Override
