@@ -85,7 +85,7 @@ public class BattleMode extends SimpleBaseGameActivity {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("asset/");
 		// loading the image inside the container
 		mBackgroundTextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createFromAsset(this.mBitmapTextureAtlas, this, "submenu.png",
+				.createFromAsset(this.mBitmapTextureAtlas, this, "sky.jpg",
 						0, 0);
 		
 		mEngine.getTextureManager().loadTexture(mBitmapTextureAtlas);
@@ -190,12 +190,12 @@ public class BattleMode extends SimpleBaseGameActivity {
 		hitArea = new Sprite(0, 0, mHitArea, getVertexBufferObjectManager());
 
 
-		if (Menu.player.scale != rachmad) {
+		/*if (Menu.player.scale != rachmad) {
 			hitArea.setScaleCenter(0, 0);
 			hitArea.setScale(Menu.player.scale);
-		}
+		}*/
 
-		hitArea.setPosition(cameraWidth*0.5f - (hitArea.getWidth() / 2), Menu.player.getCameraHeight(0.5) - (hitArea.getHeight() / 2));
+		hitArea.setPosition(cameraWidth*0.5f - (hitArea.getWidth() / 2), Menu.player.getCameraHeight(0.25) - (hitArea.getHeight() / 2));
 		scene.attachChild(hitArea);
 		scene.registerTouchArea(hitArea);
 		
@@ -229,7 +229,7 @@ public class BattleMode extends SimpleBaseGameActivity {
 				Sprite _target;
 				String _type;
 				boolean hit = false;
-
+				int count = 0;
 				// iterating over the targets
 				while (targets.hasNext() && types.hasNext()) {
 					_target = targets.next();
@@ -241,14 +241,18 @@ public class BattleMode extends SimpleBaseGameActivity {
 						//removeSprite(_target, targets);
 						currentArrowType = _type; 
 						//break;
-					} 
-					
+					}  else {
+						count++;
+						if(count == arrowList.size()) {
+							currentArrowType = "none";
+						}
+					}
 					if(_target.getX() > cameraWidth) {
 						removeSprite(_target, targets, types);
 					}
 					// if a projectile hit the target, remove the target, increment
 					// the hit count, and update the score
-					if (hit) {
+					//if (hit) {
 						
 						//removeSprite(_target, targets);
 						//hit = false;
@@ -256,17 +260,22 @@ public class BattleMode extends SimpleBaseGameActivity {
 						//hitCountText.setText("Score: "+String.valueOf(hitCount));
 						//Log.d("skor", "hitcount "+hitCount);
 						
-					}
+					//}
+					
 				}
+				
+				
 				
 				//if(hitArea.collidesWith(pOtherShape))
 				
 				arrowList.addAll(arrowsToBeAdded);
 				arrowsToBeAdded.clear();
+				
+				
 			}
 		});
 		
-		buttonUp = new Sprite(0, 0, this.mArrowUpButtonTextureRegion, getVertexBufferObjectManager()) {
+		buttonUp = new Sprite(0, this.cameraHeight - mArrowUpButtonTextureRegion.getHeight()-10, this.mArrowUpButtonTextureRegion, getVertexBufferObjectManager()) {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
@@ -296,17 +305,17 @@ public class BattleMode extends SimpleBaseGameActivity {
 			};
 		};
 
-
+		buttonUp.setPosition(0, this.cameraHeight - mArrowUpButtonTextureRegion.getHeight());
 		if (Menu.player.scale != rachmad) {
 			buttonUp.setScaleCenter(0, 0);
 			buttonUp.setScale(Menu.player.scale);
 		}
 
-		buttonUp.setPosition(0, cameraHeight - (hitArea.getHeight()));
+		
 		scene.attachChild(buttonUp);
 		scene.registerTouchArea(buttonUp);
 		
-		buttonDown = new Sprite(0, 0, this.mArrowDownButtonTextureRegion, getVertexBufferObjectManager()) {
+		buttonDown = new Sprite(cameraWidth - (mArrowDownButtonTextureRegion.getWidth()), cameraHeight - mArrowDownButtonTextureRegion.getHeight()-10, this.mArrowDownButtonTextureRegion, getVertexBufferObjectManager()) {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
@@ -335,7 +344,7 @@ public class BattleMode extends SimpleBaseGameActivity {
 			buttonDown.setScale(Menu.player.scale);
 		}
 		
-		buttonDown.setPosition(cameraWidth - (buttonDown.getWidth()), cameraHeight - (buttonDown.getHeight()*2));
+		buttonDown.setPosition(cameraWidth - (mArrowDownButtonTextureRegion.getWidth()), cameraHeight - (buttonDown.getHeight()*2));
 		scene.attachChild(buttonDown);
 		scene.registerTouchArea(buttonDown);
 		
@@ -361,7 +370,7 @@ public class BattleMode extends SimpleBaseGameActivity {
 	public void addArrow() {
 	    Random rand = new Random();
 	 
-	    float y =  Menu.player.getCameraHeight(0.5);
+	    float y =  Menu.player.getCameraHeight(0.25) - (mArrowUpTextureRegion.getHeight() / 2);
 	    //float minX = mArrowUpTextureRegion.getWidth();
 	    //float maxX =  camera.getWidth() - mArrowUpTextureRegion.getWidth();
 	    //float rangeX = maxX - minX;
