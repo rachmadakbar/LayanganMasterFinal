@@ -131,6 +131,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		private boolean downIsTouchedFlag = false;
 		
 		private Text gameOverText;
+		private Text timesUpText;
 		private boolean gameOverDisplayed = false;
 			
 	
@@ -261,8 +262,6 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		scene.attachChild(coinScore);
 		
 		
-		
-		
 		gameHUD = new HUD();
 		
 		/*inisialisasi linked list sprite coin + power item*/
@@ -278,6 +277,8 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		this.BirdLLLeft = new LinkedList<Sprite>();
 		this.BirdToBeAddedLeft = new LinkedList<Sprite>();
 		this.BirdToBeAddedRight = new LinkedList<Sprite>();
+		
+		timeLimitTimeHandler();
 		
 		createCoinSpriteTimeHandler();
 		scene.registerUpdateHandler(coinHandler);
@@ -383,6 +384,19 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		}
 	}
 	
+	private void timeLimitTimeHandler(){
+		TimerHandler timeLimit;
+		float limit = 180f;
+		timeLimit = new TimerHandler(limit, true,
+				new ITimerCallback() {
+
+			public void onTimePassed(TimerHandler pTimerHandler) {
+				onTimesUp();
+			}
+		});
+		getEngine().registerUpdateHandler(timeLimit);
+	}
+	
 	private void createCoinSpriteTimeHandler(){
 		TimerHandler coinTimerHandler;
 	    float mEffectSpawnDelay = 1f;
@@ -397,6 +411,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 
 		getEngine().registerUpdateHandler(coinTimerHandler);
 	}
+	
 	
 	private void addCoin(){
 		Random rand = new Random();
@@ -1012,7 +1027,28 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 	    }
 	}
 
-
+	/* Untuk menampilkan teks Times Up */
+	public void displayTimesUpText(){
+	    Scene timesUp = new Scene();Sprite gameOverBackground = new Sprite(0, 0, mBackgroundTextureRegion,
+				getVertexBufferObjectManager());
+	    Sprite timesUpBackground = new Sprite(0, 0, mBackgroundTextureRegion,
+				getVertexBufferObjectManager());
+	    timesUpBackground.setSize(CAMERA_WIDTH, CAMERA_HEIGHT);
+		timesUp.attachChild(timesUpBackground);
+		
+		timesUpText = new Text(0, 0, mFont, "Time's Up!", getVertexBufferObjectManager());
+		timesUpText.setPosition(camera.getCenterX(), camera.getCenterY());
+	    timesUp.attachChild(timesUpText);
+	    mEngine.setScene(timesUp);
+	    
+	}
+	
+	public void onTimesUp(){
+	    if (!gameOverDisplayed){
+	        displayTimesUpText();
+	        
+	    }
+	}
 	
 	@Override
 	protected void onDestroy()

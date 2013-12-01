@@ -131,6 +131,8 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			
 			private Text gameOverText;
 			private boolean gameOverDisplayed = false;
+			
+			private Text timesUpText;
 				
 		
 		@Override
@@ -262,6 +264,8 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			this.BirdToBeAddedLeft = new LinkedList<Sprite>();
 			this.BirdToBeAddedRight = new LinkedList<Sprite>();
 			
+			timeLimitTimeHandler();
+			
 			createCoinSpriteTimeHandler();
 			scene.registerUpdateHandler(coinHandler);
 			
@@ -297,6 +301,8 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			shield = new Sprite(powerBox3.getX() + 8, powerBox3.getY() - 50, mShieldTextureRegion, this.getVertexBufferObjectManager());
 			shield2 = new Sprite(powerBox3.getX() + 8, powerBox3.getY() - 90, mShieldTextureRegion, this.getVertexBufferObjectManager());
 			shield3 = new Sprite(powerBox3.getX() + 8, powerBox3.getY() - 130, mShieldTextureRegion, this.getVertexBufferObjectManager());
+			
+			
 			
 			return scene;
 			
@@ -362,6 +368,19 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 				*/
 				kite.setPosition(centerX, centerY);
 			}
+		}
+		
+		private void timeLimitTimeHandler(){
+			TimerHandler timeLimit;
+			float limit = 180f;
+			timeLimit = new TimerHandler(limit, true,
+					new ITimerCallback() {
+
+				public void onTimePassed(TimerHandler pTimerHandler) {
+					onTimesUp();
+				}
+			});
+			getEngine().registerUpdateHandler(timeLimit);
 		}
 		
 		private void createCoinSpriteTimeHandler(){
@@ -511,6 +530,7 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 
 			getEngine().registerUpdateHandler(birdTimerHandler);
 		}
+			
 		
 		public void addBird(){
 			Random rand = new Random();
@@ -615,7 +635,6 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 					}
 
 					if (hitFire) {
-//						_fire.setPosition(powerBox1.getX() + 8, powerBox1.getY() + 10);
 						removeSprite(_fire, fire);
 						fireAddToBox();
 						hitFire = false;
@@ -967,8 +986,8 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			}	
 		}
 		
-		public void displayGameOverText()
-		{
+		/*Untuk menampilkan teks game Over*/
+		public void displayGameOverText(){
 		    Scene gameOver = new Scene();
 		    gameOver.setBackgroundEnabled(false);
 			
@@ -980,25 +999,38 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 		    
 		}
 		
-		
-		public void onDie()
-		{
-		    if (!gameOverDisplayed)
-		    {
+		public void onDie(){
+		    if (!gameOverDisplayed){
 		        displayGameOverText();
 		        
 		    }
 		}
 		
+		/* Untuk menampilkan teks Times Up */
+		public void displayTimesUpText(){
+		    Scene timesUp = new Scene();
+		    timesUp.setBackgroundEnabled(false);
+			
+			timesUpText = new Text(0, 0, mFont, "Time's Up!", getVertexBufferObjectManager());
+			timesUpText.setPosition(camera.getCenterX(), camera.getCenterY());
+		    timesUp.attachChild(timesUpText);
+		    mEngine.setScene(timesUp);
+		    
+		}
+		
+		public void onTimesUp(){
+		    if (!gameOverDisplayed){
+		        displayTimesUpText();
+		        
+		    }
+		}
+		
 		@Override
-		protected void onDestroy()
-		{
+		protected void onDestroy(){
 		    super.onDestroy();
 		        
-		    if (this.isGameLoaded())
-		    {
+		    if (this.isGameLoaded()){
 		        System.exit(0);    
 		    }
 		}
-
 }
