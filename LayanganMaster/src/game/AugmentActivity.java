@@ -111,7 +111,7 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			private String box3 = "";
 			private int pointer = 1;
 			
-			private int healthPoin = 1000;
+			private int healthPoin = 500;
 					
 			private LinkedList BirdLLRight;
 			private LinkedList BirdLLLeft;
@@ -128,6 +128,9 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			private boolean upIsTouchedFlag = false;
 			private boolean downIsTouchedFlag = false;
 			final Scene scene = new Scene();
+			
+			private Text gameOverText;
+			private boolean gameOverDisplayed = false;
 				
 		
 		@Override
@@ -282,7 +285,7 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			scoreText = new Text(CAMERA_WIDTH - 50, 10, mFont, "                    ", getVertexBufferObjectManager());
 			scene.attachChild(scoreText);
 			
-			healthPoinText = new Text(10, 10, mFont, "Health Poins: 1000    ", getVertexBufferObjectManager());
+			healthPoinText = new Text(10, 10, mFont, "Health Poins: 500    ", getVertexBufferObjectManager());
 			scene.attachChild(healthPoinText);
 			
 			fire = new Sprite(powerBox1.getX() + 8, powerBox1.getY() - 50, mFireTextureRegion, this.getVertexBufferObjectManager());
@@ -421,7 +424,7 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			Random rand = new Random();
 			int tmp = rand.nextInt(2);
 			if (tmp == 1 ){
-				int type = rand.nextInt(2);
+				int type = rand.nextInt(3);
 				if (type == 0){
 					float y = camera.getHeight() + mFireTextureRegion.getHeight();
 					float minX = mFireTextureRegion.getWidth();
@@ -681,9 +684,8 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 						healthPoin = healthPoin - 100;
 						healthPoinText.setText("Health Poin: "+ String.valueOf(healthPoin));
 						hit = false;
-						
-						
 					}
+					
 				}
 				// iterating over the targets
 				while (birdLeft.hasNext()) {
@@ -698,7 +700,12 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 							hit = false;
 														
 						}
+				
+						if (healthPoin == 0){
+							onDie();
+						}
 				}
+				
 				
 				BirdLLRight.addAll(BirdToBeAddedRight);
 				BirdLLLeft.addAll(BirdToBeAddedLeft);
@@ -719,16 +726,6 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 			it.remove();
 		}
 		
-		
-//		public void createCoinScoreHUD(){
-//			scoreText = new Text(CAMERA_WIDTH - 50, 0, this.mFont, "0123456789",
-//					new TextOptions(HorizontalAlign.LEFT), this.getVertexBufferObjectManager()); 
-//			scoreText.setSkewCenter(0, 0);  
-//			scoreText.setText("0");
-//			
-//			gameHUD.attachChild(scoreText);
-//			camera.setHUD(gameHUD);
-//		}
 		
 		TimerHandler tUp;
 		TimerHandler tDown;
@@ -968,6 +965,29 @@ public class AugmentActivity extends BaseAugmentedRealityGameActivity implements
 				box3 = "shield";
 				++pointer;
 			}	
+		}
+		
+		public void displayGameOverText()
+		{
+		    Scene gameOver = new Scene();
+		    gameOver.setBackgroundEnabled(false);
+			
+			gameOverText = new Text(0, 0, mFont, "Game Over!", getVertexBufferObjectManager());
+		    gameOverText.setPosition(camera.getCenterX(), camera.getCenterY());
+		    gameOver.attachChild(gameOverText);
+		    gameOverDisplayed = true;
+		    mEngine.setScene(gameOver);
+		    
+		}
+		
+		
+		public void onDie()
+		{
+		    if (!gameOverDisplayed)
+		    {
+		        displayGameOverText();
+		        
+		    }
 		}
 		
 		@Override

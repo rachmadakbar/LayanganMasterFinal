@@ -113,7 +113,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		private String box3 = "";
 		private int pointer = 1;
 		
-		private int healthPoin = 1000;
+		private int healthPoin = 500;
 		
 		private LinkedList BirdLLRight;
 		private LinkedList BirdLLLeft;
@@ -129,6 +129,9 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		
 		private boolean upIsTouchedFlag = false;
 		private boolean downIsTouchedFlag = false;
+		
+		private Text gameOverText;
+		private boolean gameOverDisplayed = false;
 			
 	
 	@Override
@@ -299,8 +302,10 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		scoreText = new Text(CAMERA_WIDTH - 50, 10, mFont, "                    ", getVertexBufferObjectManager());
 		scene.attachChild(scoreText);
 		
-		healthPoinText = new Text(10, 10, mFont, "Health Poins: 1000    ", getVertexBufferObjectManager());
+		healthPoinText = new Text(10, 10, mFont, "Health Poins: 500    ", getVertexBufferObjectManager());
 		scene.attachChild(healthPoinText);
+		
+		
 				
 		fire = new Sprite(powerBox1.getX() + 8, powerBox1.getY() - 50, mFireTextureRegion, this.getVertexBufferObjectManager());
 		fire2 = new Sprite(powerBox1.getX() + 8, powerBox1.getY() - 90, mFireTextureRegion, this.getVertexBufferObjectManager());
@@ -715,7 +720,13 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 						hit = false;
 													
 					}
+					
+					if (healthPoin == 0){
+						onDie();
+					}
 			}
+			
+			
 			
 			BirdLLRight.addAll(BirdToBeAddedRight);
 			BirdLLLeft.addAll(BirdToBeAddedLeft);
@@ -735,18 +746,6 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		});
 		it.remove();
 	}
-	
-	
-	
-//	public void createCoinScoreHUD(){
-//		scoreText = new Text(CAMERA_WIDTH - 50, 0, this.mFont, "0123456789",
-//				new TextOptions(HorizontalAlign.LEFT), this.getVertexBufferObjectManager()); 
-//		scoreText.setSkewCenter(0, 0);  
-//		scoreText.setText("0");
-//		
-//		gameHUD.attachChild(scoreText);
-//		camera.setHUD(gameHUD);
-//	}
 	
 	TimerHandler tUp;
 	TimerHandler tDown;
@@ -988,6 +987,32 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		}	
 	}
 	
+	public void displayGameOverText()
+	{
+	    Scene gameOver = new Scene();
+	    Sprite gameOverBackground = new Sprite(0, 0, mBackgroundTextureRegion,
+				getVertexBufferObjectManager());
+		gameOverBackground.setSize(CAMERA_WIDTH, CAMERA_HEIGHT);
+		gameOver.attachChild(gameOverBackground);
+		gameOverText = new Text(0, 0, mFont, "Game Over!", getVertexBufferObjectManager());
+	    gameOverText.setPosition(camera.getCenterX(), camera.getCenterY());
+	    gameOver.attachChild(gameOverText);
+	    gameOverDisplayed = true;
+	    mEngine.setScene(gameOver);
+	    
+	}
+	
+	
+	public void onDie()
+	{
+	    if (!gameOverDisplayed)
+	    {
+	        displayGameOverText();
+	        
+	    }
+	}
+
+
 	
 	@Override
 	protected void onDestroy()
