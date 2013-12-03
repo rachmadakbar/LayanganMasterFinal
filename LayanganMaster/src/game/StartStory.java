@@ -21,6 +21,8 @@ import org.andengine.util.adt.io.in.IInputStreamOpener;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.IModifier.IModifierListener;
 
+import helper.Player;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -41,7 +43,12 @@ public class StartStory extends SimpleBaseGameActivity {
 	private BitmapTextureAtlas mBitmapTextureAtlas;
 	Sprite background, girl, boy1, boy2, love, kuda, boy3, kuda2, istana, penjaga, boy4, boy5, lamp, awan, layangan, surat, kirim;
 	Music music;
-	float scele;
+	float scale;
+	
+	static Player player;
+	
+	private float bgPositionX;
+	private float bgPositionY;
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -49,11 +56,16 @@ public class StartStory extends SimpleBaseGameActivity {
 		final Display display = getWindowManager().getDefaultDisplay();
 		cameraWidth = display.getWidth();
 		cameraHeight = display.getHeight();
-		scele = cameraWidth/400f;
+		scale = cameraWidth/400f;
 		final Camera camera = new Camera(0, 0, cameraWidth, cameraHeight);
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED,
 				new RatioResolutionPolicy(cameraWidth, cameraHeight), camera);
 		engineOptions.getAudioOptions().setNeedsMusic(true);
+		
+		player = new Player(getApplicationContext());
+		player.setScale(cameraWidth / 400f);
+		player.setPaddingY((float) ((cameraHeight - 240 * player.scale) / 2));
+		
 		return engineOptions;
 	}
 
@@ -67,6 +79,11 @@ public class StartStory extends SimpleBaseGameActivity {
 		mBackgroundTextureRegion = BitmapTextureAtlasTextureRegionFactory
 				.createFromAsset(this.mBitmapTextureAtlas, this, "sc1.png", 0,
 						0);
+		
+		this.bgPositionX = mBackgroundTextureRegion.getWidth() / 2;
+		this.bgPositionY = mBackgroundTextureRegion.getHeight() / 2
+				+ player.paddingY;
+		
 		try {
 			
 			ITexture sc2 = new BitmapTexture(this.getTextureManager(),
@@ -239,13 +256,14 @@ public class StartStory extends SimpleBaseGameActivity {
 	@Override
 	protected Scene onCreateScene() {
 		// TODO Auto-generated method stub
-		final int centerX = (int) ((cameraWidth - mBackgroundTextureRegion
+		/*final int centerX = (int) ((cameraWidth - mBackgroundTextureRegion
 				.getWidth()) / 2);
 		final int centerY = (int) ((cameraHeight - mBackgroundTextureRegion
-				.getHeight()) / 2);
+				.getHeight()) / 2);*/
 		background = new
-				Sprite(centerX, centerY,mBackgroundTextureRegion,getVertexBufferObjectManager());
-		background.setScale(scele);
+				Sprite(this.bgPositionX, this.bgPositionY,mBackgroundTextureRegion,getVertexBufferObjectManager());
+		background.setScaleCenter(0, 0);
+		background.setScale(scale);
 		scene.attachChild(background);		
 
 		mEngine.registerUpdateHandler(new TimerHandler(2f, true,
@@ -254,44 +272,49 @@ public class StartStory extends SimpleBaseGameActivity {
 					public void onTimePassed(TimerHandler pTimerHandler) {
 						if (i == 0) {
 							music.play();
-							girl = new Sprite(centerX, centerY, mGirl,
+							girl = new Sprite(bgPositionX, bgPositionY, mGirl,
 									getVertexBufferObjectManager());
-							girl.setScale(scele);
+							girl.setScaleCenter(0, 0);
+							girl.setScale(scale);
 							scene.attachChild(girl);
 							i++;
 						}else if( i == 1){
-							boy1 = new Sprite(centerX, centerY, mBoy1,
+							boy1 = new Sprite(bgPositionX, bgPositionY, mBoy1,
 									getVertexBufferObjectManager());
-							boy1.setScale(scele);
+							boy1.setScaleCenter(0, 0);
+							boy1.setScale(scale);
 							scene.attachChild(boy1);
 							i++;
 						}else if(i == 2){
-							boy2 = new Sprite(centerX, centerY, mBoy2,
+							boy2 = new Sprite(bgPositionX, bgPositionY, mBoy2,
 									getVertexBufferObjectManager());
-							boy2.setScale(scele);
+							boy2.setScaleCenter(0, 0);
+							boy2.setScale(scale);
 							scene.detachChild(boy1);
 							scene.attachChild(boy2);
 							i++;
 						}else if(i==3){
-							love = new Sprite(centerX, centerY, mLove,
+							love = new Sprite(bgPositionX, bgPositionY, mLove,
 									getVertexBufferObjectManager());
-							love.setScale(scele);
+							love.setScaleCenter(0, 0);
+							love.setScale(scale);
 							scene.attachChild(love);
 							i++;
 						}else if(i==4){
 							i++;
 							
 							float paddingY = 0;
-							float scaleCeil = (float) Math.ceil(scele);
-							if(scele-scaleCeil != 0) paddingY = (cameraHeight*scaleCeil-cameraHeight*scele)/2; 	
+							float scaleCeil = (float) Math.ceil(scale);
+							if(scale-scaleCeil != 0) paddingY = (cameraHeight*scaleCeil-cameraHeight*scale)/2; 	
 							else paddingY = 0;
 							
-							kuda = new Sprite(-100, paddingY, mKuda,
+							kuda = new Sprite(0,0, mKuda,
 									getVertexBufferObjectManager());
-							kuda.setScaleCenter(0, 0);
-							kuda.setScale(scele);							
+							//kuda.setScaleCenter(0, 0);
+							kuda.setScale(scale);
+							kuda.setPosition(-(kuda.getWidthScaled() / 2), kuda.getHeightScaled() / 2);
 							scene.attachChild(kuda);
-							MoveXModifier lari = new MoveXModifier(4, -100, cameraWidth/3);
+							MoveXModifier lari = new MoveXModifier(4, -(kuda.getWidthScaled() / 2), cameraWidth / 3 + (kuda.getWidthScaled() / 2));
 							lari.addModifierListener(new IModifierListener<IEntity>() {
 								
 								@Override
@@ -313,7 +336,7 @@ public class StartStory extends SimpleBaseGameActivity {
 							i++;
 						}else if(i==7){
 							i++;
-							MoveXModifier pergi = new MoveXModifier(3, cameraWidth/3, cameraWidth);
+							MoveXModifier pergi = new MoveXModifier(3, cameraWidth/3 + (kuda.getWidthScaled() / 2), cameraWidth + (kuda.getWidthScaled() / 2));
 							pergi.addModifierListener(new IModifierListener<IEntity>() {
 								
 								@Override
@@ -331,26 +354,29 @@ public class StartStory extends SimpleBaseGameActivity {
 							kuda.registerEntityModifier(pergi);
 							
 						}else if(i==9){
-							boy3 = new Sprite(centerX, centerY, mBoy3,
+							boy3 = new Sprite(bgPositionX, bgPositionY, mBoy3,
 									getVertexBufferObjectManager());
-							boy3.setScale(scele);
+							boy3.setScaleCenter(0, 0);
+							boy3.setScale(scale);
 							scene.detachChild(boy2);
 							scene.detachChild(love);
 							scene.attachChild(boy3);
 							i++;
 						}else if(i==10){
-							istana = new Sprite(centerX, centerY, mIstana,
+							istana = new Sprite(bgPositionX, bgPositionY, mIstana,
 									getVertexBufferObjectManager());
-							istana.setScale(scele);
+							istana.setScaleCenter(0, 0);
+							istana.setScale(scale);
 							scene.detachChild(boy3);
 							scene.detachChild(background);
 							scene.attachChild(istana);
 							i++;
 						}else if(i==11){
 							i++;
-							kuda2 = new Sprite(cameraWidth, centerY, mKuda2,
+							kuda2 = new Sprite(cameraWidth, bgPositionY, mKuda2,
 									getVertexBufferObjectManager());
-							kuda2.setScale(scele);
+							kuda2.setScaleCenter(0, 0);
+							kuda2.setScale(scale);
 							scene.attachChild(kuda2);
 							MoveXModifier lari2 = new MoveXModifier(6, cameraWidth, cameraWidth/4);
 							lari2.addModifierListener(new IModifierListener<IEntity>() {
@@ -372,54 +398,63 @@ public class StartStory extends SimpleBaseGameActivity {
 							scene.detachChild(kuda2);
 							i++;
 						}else if(i==14){
-							penjaga = new Sprite(centerX, centerY, mPenjaga,
+							penjaga = new Sprite(bgPositionX, bgPositionY, mPenjaga,
 									getVertexBufferObjectManager());
-							penjaga.setScale(scele);
+							penjaga.setScaleCenter(0, 0);
+							penjaga.setScale(scale);
 							scene.detachChild(istana);
 							scene.attachChild(penjaga);
 							i++;
 						}else if(i==15){
 							scene.detachChild(penjaga);
 							scene.attachChild(background);
-							boy4 = new Sprite(centerX, centerY, mBoy4,
+							boy4 = new Sprite(bgPositionX, bgPositionY, mBoy4,
 									getVertexBufferObjectManager());
-							boy4.setScale(scele);
+							boy4.setScaleCenter(0, 0);
+							boy4.setScale(scale);
 							scene.attachChild(boy4);
 							i++;
 						}else if(i==16){
-							boy5 = new Sprite(centerX, centerY, mBoy5,
+							boy5 = new Sprite(bgPositionX, bgPositionY, mBoy5,
 									getVertexBufferObjectManager());
-							boy5.setScale(scele);
+							
+							boy5.setScaleCenter(0, 0);
+							boy5.setScale(scale);
 							scene.attachChild(boy5);
-							lamp = new Sprite(centerX, centerY, mLamp,
+							lamp = new Sprite(bgPositionX, bgPositionY, mLamp,
 									getVertexBufferObjectManager());
-							lamp.setScale(scele);
+							lamp.setScaleCenter(0, 0);
+							lamp.setScale(scale);
 							scene.attachChild(lamp);
 							i++;
 						}else if(i==17){
-							awan = new Sprite(centerX, centerY, mAwan,
+							awan = new Sprite(bgPositionX, bgPositionY, mAwan,
 									getVertexBufferObjectManager());
-							awan.setScale(scele);
+							awan.setScaleCenter(0, 0);
+							awan.setScale(scale);
 							scene.detachChild(lamp);
 							scene.attachChild(awan);
 							
 							i++;
 						}else if(i==18){
-							layangan = new Sprite(centerX, centerY, mLayangan,
+							layangan = new Sprite(bgPositionX, bgPositionY, mLayangan,
 									getVertexBufferObjectManager());	
-							layangan.setScale(scele);
+							layangan.setScaleCenter(0, 0);
+							layangan.setScale(scale);
 							scene.attachChild(layangan);
 							i++;
 						}else if(i==19){
-							surat = new Sprite(centerX, centerY, mSurat,
+							surat = new Sprite(bgPositionX, bgPositionY, mSurat,
 									getVertexBufferObjectManager());
-							surat.setScale(scele);
+							surat.setScaleCenter(0, 0);
+							surat.setScale(scale);
 							scene.attachChild(surat);
 							i++;
 						}else if(i==20){
-							kirim = new Sprite(centerX, centerY, mKirim,
+							kirim = new Sprite(bgPositionX, bgPositionY, mKirim,
 									getVertexBufferObjectManager());
-							kirim.setScale(scele);
+							kirim.setScaleCenter(0, 0);
+							kirim.setScale(scale);
 							scene.detachChild(layangan);
 							scene.detachChild(surat);
 							scene.attachChild(kirim);
