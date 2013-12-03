@@ -18,6 +18,8 @@ import org.andengine.opengl.texture.bitmap.BitmapTexture;
 import org.andengine.util.adt.io.in.IInputStreamOpener;
 
 
+import helper.Player;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -35,6 +37,12 @@ public class EndStory extends SimpleBaseGameActivity {
 	private BitmapTextureAtlas mBitmapTextureAtlas;
 	Sprite background, love, layangan;
 	Music music;
+	
+	static Player player;
+	
+	private float bgPositionX;
+	private float bgPositionY;
+	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
 		// TODO Auto-generated method stub
@@ -46,6 +54,12 @@ public class EndStory extends SimpleBaseGameActivity {
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED,
 				new RatioResolutionPolicy(cameraWidth, cameraHeight), camera);
 		engineOptions.getAudioOptions().setNeedsMusic(true);
+		
+		player = new Player(getApplicationContext());
+		player.setScale(cameraWidth / 400f);
+		player.setPaddingY((float) ((cameraHeight - 240 * player.scale) / 2));
+		
+		
 		return engineOptions;
 	}
 
@@ -59,6 +73,11 @@ public class EndStory extends SimpleBaseGameActivity {
 		mBackgroundTextureRegion = BitmapTextureAtlasTextureRegionFactory
 				.createFromAsset(this.mBitmapTextureAtlas, this, "sc18.png", 0,
 						0);
+		
+		this.bgPositionX = mBackgroundTextureRegion.getWidth() / 2;
+		this.bgPositionY = mBackgroundTextureRegion.getHeight() / 2
+				+ player.paddingY;
+		
 		try {
 			
 			ITexture sc19 = new BitmapTexture(this.getTextureManager(),
@@ -104,12 +123,15 @@ public class EndStory extends SimpleBaseGameActivity {
 	@Override
 	protected Scene onCreateScene() {
 		// TODO Auto-generated method stub
-		final int centerX = (int) ((cameraWidth - mBackgroundTextureRegion
+		/*final int centerX = (int) ((cameraWidth - mBackgroundTextureRegion
 				.getWidth()) / 2);
 		final int centerY = (int) ((cameraHeight - mBackgroundTextureRegion
-				.getHeight()) / 2);
+				.getHeight()) / 2);*/
 		background = new
-				Sprite(centerX, centerY,mBackgroundTextureRegion,getVertexBufferObjectManager());
+				Sprite(bgPositionX, bgPositionY,mBackgroundTextureRegion,getVertexBufferObjectManager());
+		background.setScaleCenter(0, 0);
+		background.setScale(player.scale);
+		
 		scene.attachChild(background);
 		music.play();
 
@@ -119,15 +141,20 @@ public class EndStory extends SimpleBaseGameActivity {
 					public void onTimePassed(TimerHandler pTimerHandler) {
 						if (i == 0) {
 							
-							layangan = new Sprite(centerX, centerY, mLayangan,
+							layangan = new Sprite(bgPositionX, bgPositionY, mLayangan,
 									getVertexBufferObjectManager());
+							layangan.setScaleCenter(0, 0);
+							layangan.setScale(player.scale);
 							scene.attachChild(layangan);
 							i++;
 						}else if(i == 1){
-							 love = new Sprite(centerX, centerY, mLove,
+							 love = new Sprite(bgPositionX, bgPositionY, mLove,
 									getVertexBufferObjectManager());
-							scene.detachChild(layangan);
-							scene.attachChild(love);
+							 love.setScaleCenter(0, 0);
+							 love.setScale(player.scale);
+								
+							 scene.detachChild(layangan);
+							 scene.attachChild(love);
 						}else if(i == 2){
 							i++;
 							music.stop();
