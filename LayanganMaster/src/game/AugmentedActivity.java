@@ -6,27 +6,24 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
-import helper.Player;
-
-import org.andengine.audio.music.Music;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
+import org.andengine.engine.options.ConfigChooserOptions;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.modifier.MoveXModifier;
 import org.andengine.entity.modifier.MoveYModifier;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.ButtonSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
-import org.andengine.entity.text.TextOptions;
 import org.andengine.entity.util.FPSLogger;
+import org.andengine.extension.augmentedreality.BaseAugmentedRealityGameActivity;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
@@ -42,9 +39,8 @@ import org.andengine.opengl.texture.bitmap.BitmapTexture;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TextureRegionFactory;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
-import org.andengine.ui.activity.SimpleBaseGameActivity;
-import org.andengine.util.adt.io.in.IInputStreamOpener;
 import org.andengine.util.adt.color.Color;
+import org.andengine.util.adt.io.in.IInputStreamOpener;
 import org.andengine.util.debug.Debug;
 
 import android.hardware.Sensor;
@@ -54,86 +50,86 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Display;
+import android.view.Menu;
 
-
-import game.*;
-
-public class NonAugmentedActivity extends SimpleBaseGameActivity implements SensorEventListener {
-	// ===========================================================
-	// Constants
-	// ===========================================================
-
-	int cameraWidth;
-	int cameraHeight;
+public class AugmentedActivity extends BaseAugmentedRealityGameActivity implements SensorEventListener {
 	
 	// ===========================================================
-	// Fields
-	// ===========================================================
-	
-	private ITextureRegion mKiteTextureRegion, mBoxTextureRegion, mCoinScoreTextureRegion, 
-	mButtonUpTextureRegion, mButtonDownTextureRegion,  mBackgroundTextureRegion, mBgOverlayTextureRegion;
-	private Sprite kite, background, coinScore, powerBox1, powerBox2, powerBox3, buttonUp, buttonDown, fire, fire2, fire3, 
-	water, water2, water3, shield, shield2, shield3, bgOverlay;
-	private int accellerometerSpeedX;
-	private int accellerometerSpeedY;
-	private SensorManager sensorManager;
-	private float centerX;
-	private float centerY;
-	private float bottomLimit, topLimit;
-	private Camera camera;
-	private Scene scene = new Scene();
-	private BitmapTextureAtlas mBitmapTextureAtlas, mItemBitmapTextureAtlas;
-	
-	/*buat sprite burung*/
-	private BuildableBitmapTextureAtlas mBirdBitmapTextureAtlas;
-	private TiledTextureRegion mBirdTextureRegionRight;
-	private TiledTextureRegion mBirdTextureRegionLeft;
-	
-	/*untuk sprite coin*/
-	private ITextureRegion mCoinTextureRegion;
-	private LinkedList CoinLL;
-	private LinkedList CoinsToBeAdded;
-	int hitCount = 0;
-	
-	/*untuk sprite power item*/
-	private ITextureRegion mFireTextureRegion;
-	private ITextureRegion mWaterTextureRegion;
-	private ITextureRegion mShieldTextureRegion;
-	private LinkedList FireLL;
-	private LinkedList FireToBeAdded;
-	private LinkedList WaterLL;
-	private LinkedList WaterToBeAdded;
-	private LinkedList ShieldLL;
-	private LinkedList ShieldToBeAdded;
-	
-	private String box1 = "";
-	private String box2 = "";
-	private String box3 = "";
-	private int pointer = 1;
-	
-	private int healthPoin = 500;
-	
-	private LinkedList BirdLLRight;
-	private LinkedList BirdLLLeft;
-	private LinkedList BirdToBeAddedRight;
-	private LinkedList BirdToBeAddedLeft;
-	
-	/*untuk text perolehan coin dan HP*/
-	private Font mFont, mGameOverFont, mFinalFont;
-	private Text scoreText, healthPoinText;
-	
-	/*HUD game*/
-	private HUD gameHUD;
-	
-	private boolean upIsTouchedFlag = false;
-	private boolean downIsTouchedFlag = false;
-	
-	private Text gameOverText,timesUpText, finalText;
-	
-	private int kecepatan;
+		// Constants
+		// ===========================================================
+
+		int cameraWidth;
+		int cameraHeight;
+		
+		// ===========================================================
+		// Fields
+		// ===========================================================
+		
+		private ITextureRegion mKiteTextureRegion, mBoxTextureRegion, mCoinScoreTextureRegion, 
+		mButtonUpTextureRegion, mButtonDownTextureRegion, mBgOverlayTextureRegion;
+		private Sprite kite, background, coinScore, powerBox1, powerBox2, powerBox3, buttonUp, buttonDown, fire, fire2, fire3, 
+		water, water2, water3, shield, shield2, shield3, bgOverlay;
+		private int accellerometerSpeedX;
+		private int accellerometerSpeedY;
+		private SensorManager sensorManager;
+		private float centerX;
+		private float centerY;
+		private float bottomLimit, topLimit;
+		private Camera camera;
+		private Scene scene = new Scene();
+		private BitmapTextureAtlas mBitmapTextureAtlas, mItemBitmapTextureAtlas;
+		
+		/*buat sprite burung*/
+		private BuildableBitmapTextureAtlas mBirdBitmapTextureAtlas;
+		private TiledTextureRegion mBirdTextureRegionRight;
+		private TiledTextureRegion mBirdTextureRegionLeft;
+		
+		/*untuk sprite coin*/
+		private ITextureRegion mCoinTextureRegion;
+		private LinkedList CoinLL;
+		private LinkedList CoinsToBeAdded;
+		int hitCount = 0;
+		
+		/*untuk sprite power item*/
+		private ITextureRegion mFireTextureRegion;
+		private ITextureRegion mWaterTextureRegion;
+		private ITextureRegion mShieldTextureRegion;
+		private LinkedList FireLL;
+		private LinkedList FireToBeAdded;
+		private LinkedList WaterLL;
+		private LinkedList WaterToBeAdded;
+		private LinkedList ShieldLL;
+		private LinkedList ShieldToBeAdded;
+		
+		private String box1 = "";
+		private String box2 = "";
+		private String box3 = "";
+		private int pointer = 1;
+		
+		private float scale, paddingY;
+		
+		private LinkedList BirdLLRight;
+		private LinkedList BirdLLLeft;
+		private LinkedList BirdToBeAddedRight;
+		private LinkedList BirdToBeAddedLeft;
+		
+		/*untuk text perolehan coin dan HP*/
+		private Font mFont, mGameOverFont, mFinalFont;
+		private Text scoreText, healthPoinText;
+		private int healthPoin = 500;
+		
+		/*HUD game*/
+		private HUD gameHUD;
+		
+		private boolean upIsTouchedFlag = false;
+		private boolean downIsTouchedFlag = false;
+		
+		private Text gameOverText,timesUpText, finalText;
+		private int kecepatan;
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
+		// TODO Auto-generated method stub
 		final Display display = getWindowManager().getDefaultDisplay();
 		cameraWidth = display.getWidth();
 		cameraHeight = display.getHeight();
@@ -142,23 +138,22 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		EngineOptions engineOptions = new EngineOptions(true,
 				ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(
 						cameraWidth, cameraHeight), camera);
-		engineOptions.getAudioOptions().setNeedsMusic(true).setNeedsSound(true);
+		final ConfigChooserOptions configChooserOptions = engineOptions
+				.getRenderOptions().getConfigChooserOptions();
+		configChooserOptions.setRequestedRedSize(8);
+		configChooserOptions.setRequestedGreenSize(8);
+		configChooserOptions.setRequestedBlueSize(8);
+		configChooserOptions.setRequestedAlphaSize(8);
+		configChooserOptions.setRequestedDepthSize(16);
 		return engineOptions;
 	}
 
-	
-
 	@Override
-	protected void onCreateResources() {
+	protected void onCreateResources() throws IOException {
 		// TODO Auto-generated method stub
 		mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(),
 				512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("asset/");
-		mBackgroundTextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createFromAsset(this.mBitmapTextureAtlas, this, "sky.jpg", 0,
-						0);
-
-		mEngine.getTextureManager().loadTexture(mBitmapTextureAtlas);
 		try {
 			ITexture bg_asset = new BitmapTexture(this.getTextureManager(),
 					new IInputStreamOpener() {
@@ -252,7 +247,6 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		mEngine.getTextureManager().loadTexture(mBitmapTextureAtlas);
 		
 		this.mBirdBitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(), 512, 256, TextureOptions.NEAREST);
 		this.mBirdTextureRegionRight = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBirdBitmapTextureAtlas, this, "bird1.png", 4, 1);
@@ -285,14 +279,12 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 	            this.getAssets(), "Candara.ttf", 22f, true,
 	            Color.WHITE_ABGR_PACKED_INT);
 		mFinalFont.load();
-		
 	}
 
-	float scale, paddingY;
-	
-	
 	@Override
 	protected Scene onCreateScene() {
+		// TODO Auto-generated method stub
+		
 		scale = cameraWidth / 400f;
 		paddingY = (cameraHeight - 240 * scale) / 2;
 		kecepatan = 0;
@@ -302,6 +294,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		sensorManager.registerListener(this, sensorManager
 				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
 				sensorManager.SENSOR_DELAY_GAME);
+		
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 		this.mEngine.registerUpdateHandler(new IUpdateHandler() {
 			public void onUpdate(float pSecondsElapsed) {
@@ -312,18 +305,13 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 				// TODO Auto-generated method stub
 			}
 		});
+
+//		Scene scene = new Scene();
+		//scene.setBackground(new Background(0,0,0,0));
+		scene.getBackground().setColor(Color.TRANSPARENT);
 		
 		centerX = cameraWidth/2f;
 		centerY = cameraHeight/2f;
-
-		background = new Sprite(
-				mBackgroundTextureRegion.getWidth() / 2,
-				mBackgroundTextureRegion.getHeight() / 2 + paddingY,
-				mBackgroundTextureRegion, getVertexBufferObjectManager());
-
-		background.setScaleCenter(0, 0);
-		background.setScale(scale);
-		scene.attachChild(background);
 		
 		bgOverlay = new Sprite(0, 0, mBgOverlayTextureRegion, getVertexBufferObjectManager());
 		bgOverlay.setScale(scale);
@@ -331,7 +319,6 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 				cameraHeight - bgOverlay.getHeightScaled() / 2
 						- paddingY);
 		scene.attachChild(bgOverlay);
-		
 		
 		kite = new Sprite(centerX, centerY, mKiteTextureRegion, this.getVertexBufferObjectManager());
 		kite.setScaleCenter(0,0);
@@ -354,7 +341,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		this.BirdToBeAddedRight = new LinkedList<Sprite>();
 		
 		
-		timeLimitTimeHandler();
+//		timeLimitTimeHandler();
 		createCoinSpriteTimeHandler();
 		scene.registerUpdateHandler(coinHandler);
 		createPowerSpriteTimeHandler();
@@ -413,14 +400,8 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		shield2.setScale(scale);
 		shield3.setScale(scale);
 		
-		// TODO Auto-generated method stub
 		return scene;
 	}
-	
-	
-	// ===========================================================
-	// Methods
-	// ===========================================================
 	
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
@@ -428,9 +409,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		
 	}
 
-	@Override
 	public void onSensorChanged(SensorEvent event) {
-		// TODO Auto-generated method stub
 		synchronized (this) {
 			switch (event.sensor.getType()) {
 			case Sensor.TYPE_ACCELEROMETER:
@@ -439,7 +418,6 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 				break;
 			}
 		}
-		
 	}
 	
 	private void updateKitePosition() {
@@ -483,50 +461,6 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 			kite.setPosition(centerX, centerY);
 		}
 	}
-	
-	private void timeLimitTimeHandler(){
-		TimerHandler timeLimit;
-		float limit = 10f;
-		timeLimit = new TimerHandler(limit, true,
-				new ITimerCallback() {
-
-			public void onTimePassed(TimerHandler pTimerHandler) {
-				onTimesUp();
-			}
-		});
-		getEngine().registerUpdateHandler(timeLimit);
-	}
-	
-	public void onTimesUp(){
-	    displayTimesUpText();
-	}
-	
-	public void displayTimesUpText(){
-	    Scene timesUp = new Scene();
-	   
-		Sprite timesUpBackground = new Sprite(
-				mBackgroundTextureRegion.getWidth() / 2,
-				mBackgroundTextureRegion.getHeight() / 2 + paddingY,
-				mBackgroundTextureRegion, getVertexBufferObjectManager());
-	    
-	    timesUpBackground.setScaleCenter(0, 0);
-	    timesUpBackground.setScale(scale);
-		timesUp.attachChild(timesUpBackground);
-		
-		timesUpText = new Text(0, 0, mGameOverFont, "Time's Up!", getVertexBufferObjectManager());
-		timesUpText.setScale(scale);
-		timesUpText.setPosition(cameraWidth/2, cameraHeight/2 + timesUpText.getHeightScaled()/2);
-	    timesUp.attachChild(timesUpText);
-	    
-	    finalText = new Text(0, 0, mFinalFont, "Coins attained: "+String.valueOf(hitCount), getVertexBufferObjectManager());
-	    finalText.setScale(scale);
-	    finalText.setPosition(cameraWidth/2, cameraHeight/2 - finalText.getHeightScaled());
-	    timesUp.attachChild(finalText);
-	    
-	    mEngine.setScene(timesUp);
-	    
-	}
-	
 	
 	private void createCoinSpriteTimeHandler(){
 		TimerHandler coinTimerHandler;
@@ -896,7 +830,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 					}
 					
 					if (healthPoin == 0){
-						onDie();
+//						onDie();
 					}
 					if (_bird.getX() < 0){
 						removeSprite(_bird, birdLeft);
@@ -1163,37 +1097,6 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 	    gameHUD.attachChild(buttonUp);
 	    gameHUD.attachChild(buttonDown);
 	    camera.setHUD(gameHUD);
-	}
-	
-	
-	public void displayGameOverText(){
-	    Scene gameOver = new Scene();
-	    
-	    Sprite gameOverBackground = new Sprite(
-				mBackgroundTextureRegion.getWidth() / 2,
-				mBackgroundTextureRegion.getHeight() / 2 + paddingY,
-				mBackgroundTextureRegion, getVertexBufferObjectManager());
-	    
-	    gameOverBackground.setScaleCenter(0, 0);
-	    gameOverBackground.setScale(scale);
-		gameOver.attachChild(gameOverBackground);
-		
-		gameOverText = new Text(0, 0, mGameOverFont, "Game Over!", getVertexBufferObjectManager());
-		gameOverText.setScale(scale);
-		gameOverText.setPosition(cameraWidth/2, cameraHeight/2 + gameOverText.getHeightScaled()/2);
-	    gameOver.attachChild(gameOverText);
-	    
-	    finalText = new Text(0, 0, mFinalFont, "Coins attained: "+String.valueOf(hitCount), getVertexBufferObjectManager());
-	    finalText.setScale(scale);
-	    finalText.setPosition(cameraWidth/2, cameraHeight/2 - finalText.getHeightScaled());
-	    gameOver.attachChild(finalText);
-	    
-	    mEngine.setScene(gameOver);
-	    
-	}
-	
-	public void onDie(){
-	    displayGameOverText();
 	}
 
 }
