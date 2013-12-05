@@ -26,6 +26,8 @@ import java.io.InputStream;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TextureRegionFactory;
 import org.andengine.entity.sprite.Sprite;
+
+import android.content.Intent;
 import android.view.Display;
 
 public class EndStory extends SimpleBaseGameActivity {
@@ -152,13 +154,16 @@ public class EndStory extends SimpleBaseGameActivity {
 									getVertexBufferObjectManager());
 							 love.setScaleCenter(0, 0);
 							 love.setScale(player.scale);
-								
-							 scene.detachChild(layangan);
+							scene.detachChild(layangan);
 							 scene.attachChild(love);
+							 i++;
 						}else if(i == 2){
 							i++;
 							music.stop();
 							mEngine.unregisterUpdateHandler(pTimerHandler);
+							startActivity(new Intent(getApplicationContext(),
+									Menu.class));
+							finish();
 						}
 					}
 				}));

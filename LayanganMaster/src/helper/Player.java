@@ -10,6 +10,7 @@ public class Player{
 	public boolean isSound, isCamera, isDebt, isMaster, isLightning, buyGreen, buyPurple, buyBlue, isNew;
 	LayanganMasterDBAdapter db;
 	String username = "rabbit";
+	public boolean isSantai;
 	
 	public float scale, paddingY;
 	
@@ -35,7 +36,7 @@ public class Player{
 		speed = db.getSpeed(username);
 		coin = db.getCoin(username);
 		level = db.getLevel(username);
-		isSound = db.isSound(username);
+		isSound = db.isSoundOn(username);
 		isCamera = db.isCamera(username);
 		isDebt = db.getAchievement("debt");
 		isMaster = db.getAchievement("master");
@@ -97,7 +98,7 @@ public class Player{
 	}
 	
 	public void checkLightning(int speed){
-		if(speed == 30){
+		if(speed >= 17){
 			db.open();
 			db.updateAchievement("lightning", 1);
 			db.close();
@@ -139,5 +140,9 @@ public class Player{
 	
 	public void setKite(int i){
 		kite = i;
+	}
+	
+	public void setModeSantai(boolean santai){
+		isSantai = santai;
 	}
 }

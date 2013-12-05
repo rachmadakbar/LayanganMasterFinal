@@ -3,6 +3,8 @@ package game;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.audio.music.Music;
 import org.andengine.audio.music.MusicFactory;
+import org.andengine.audio.sound.Sound;
+import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.entity.scene.Scene;
 import org.andengine.engine.camera.Camera;
@@ -50,6 +52,7 @@ public class Menu extends SimpleBaseGameActivity {
 	int cameraHeight;
 
 	boolean isHome = false;
+	boolean isSoundOn = true;
 
 	final Scene scene = new Scene();
 	final Scene scene2 = new Scene();
@@ -66,6 +69,8 @@ public class Menu extends SimpleBaseGameActivity {
 			menu2, home2, info, compass;
 
 	static Music music;
+	private Sound buttonClickedSound;
+	private Sound itemBoughtSound;
 	static Player player;
 	float rachmad = 0.8f;
 
@@ -78,6 +83,8 @@ public class Menu extends SimpleBaseGameActivity {
 	private float titlePositionY;
 	private float homePositionX;
 	private float homePositionY;
+	
+	private LayanganMasterDBAdapter db;
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -86,7 +93,9 @@ public class Menu extends SimpleBaseGameActivity {
 		cameraWidth = display.getWidth();
 		cameraHeight = display.getHeight();
 		
-		
+		db = new LayanganMasterDBAdapter(
+				getApplicationContext());
+		db.open();
 
 		final Camera camera = new Camera(0, 0, cameraWidth, cameraHeight);
 		EngineOptions engineOptions = new EngineOptions(true,
@@ -104,6 +113,7 @@ public class Menu extends SimpleBaseGameActivity {
 
 	@Override
 	protected void onCreateResources() {
+		player.isSound = db.isSoundOn("rabbit");
 		menuResources();
 		homePositionX = cameraWidth * 7 / 8;
 		homePositionY = player.getCameraHeight(1 / 10.0);
@@ -115,6 +125,19 @@ public class Menu extends SimpleBaseGameActivity {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		SoundFactory.setAssetBasePath("sfx/");
+		try {
+			this.buttonClickedSound = SoundFactory.createSoundFromAsset(mEngine
+					.getSoundManager(), this, "buttonclick.wav");
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 
 	}
 
@@ -486,6 +509,17 @@ public class Menu extends SimpleBaseGameActivity {
 				this.getAssets(), "RAVIE.TTF", 20f, true,
 				Color.WHITE_ABGR_PACKED_INT);
 		mFont.load();
+		
+		try {
+			this.itemBoughtSound = SoundFactory.createSoundFromAsset(mEngine
+					.getSoundManager(), this, "coin.wav");
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void pialaResource() {
@@ -684,7 +718,14 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
-				if (pSceneTouchEvent.isActionUp()) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
+				if (pSceneTouchEvent.isActionUp()) 
+				{
 					menuResources();
 					scene5.clearChildScene();
 					scene5.clearTouchAreas();
@@ -731,6 +772,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					Debug.e("kite", "kite1");
 					player.setKite(1);
@@ -765,6 +812,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					Debug.e("kite", "kite2");
 					player.setKite(2);
@@ -797,6 +850,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					Debug.e("kite", "kite3");
 					player.setKite(3);
@@ -840,6 +899,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					menuResources();
 					scene6.clearChildScene();
@@ -863,6 +928,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					pilihResource();
 					scene6.clearChildScene();
@@ -893,6 +964,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					player.setModeSantai(true);
 					startActivity(new Intent(getApplicationContext(),
@@ -916,6 +993,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					player.setModeSantai(false);
 					startActivity(new Intent(getApplicationContext(),
@@ -973,9 +1056,9 @@ public class Menu extends SimpleBaseGameActivity {
 				if (pSceneTouchEvent.isActionUp()) {
 					music.pause();
 					soundOn.setPosition(-cameraWidth,
-							player.getCameraHeight(1 / 4.0));
+							player.getCameraHeight(2 / 4.0) - soundOff.getHeightScaled() / 2);
 					soundOff.setPosition(cameraWidth / 5,
-							player.getCameraHeight(1 / 4.0));
+							player.getCameraHeight(2 / 4.0) - soundOff.getHeightScaled() / 2);
 					player.setSound(0);
 				}
 				return true;
@@ -994,12 +1077,18 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					music.play();
 					soundOff.setPosition(-cameraWidth,
-							player.getCameraHeight(1 / 4.0));
+							player.getCameraHeight(2 / 4.0) - soundOff.getHeightScaled() / 2);
 					soundOn.setPosition(cameraWidth / 5,
-							player.getCameraHeight(1 / 4.0));
+							player.getCameraHeight(2 / 4.0) - soundOff.getHeightScaled() / 2);
 					player.setSound(1);
 				}
 				return true;
@@ -1028,11 +1117,17 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					cameraOn.setPosition(-cameraWidth,
-							player.getCameraHeight(1 / 4.0));
+							player.getCameraHeight(2 / 4.0) - cameraOn.getHeightScaled() / 2);
 					cameraOff.setPosition(cameraWidth * 3 / 5,
-							player.getCameraHeight(1 / 4.0));
+							player.getCameraHeight(2 / 4.0) - cameraOn.getHeightScaled() / 2);
 					player.setCamera(0);
 				}
 				return true;
@@ -1052,11 +1147,17 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					cameraOff.setPosition(-cameraWidth,
-							player.getCameraHeight(1 / 4.0));
+							player.getCameraHeight(2 / 4.0) - cameraOn.getHeightScaled() / 2);
 					cameraOn.setPosition(cameraWidth * 3 / 5,
-							player.getCameraHeight(1 / 4.0));
+							player.getCameraHeight(2 / 4.0) - cameraOn.getHeightScaled() / 2);
 					player.setCamera(1);
 				}
 				return true;
@@ -1075,6 +1176,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					menuResources();
 					scene2.clearChildScene();
@@ -1122,6 +1229,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					menuResources();
 					scene4.clearChildScene();
@@ -1209,6 +1322,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					pilihResource();
 					scene.clearChildScene();
@@ -1230,6 +1349,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					statusResource();
 					scene.clearChildScene();
@@ -1253,6 +1378,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					startActivity(new Intent(getApplicationContext(),
 							Compass.class));
@@ -1275,6 +1406,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					settingResource();
 					scene.clearChildScene();
@@ -1301,6 +1438,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					startActivity(new Intent(getApplicationContext(),
 							Test.class));
@@ -1326,6 +1469,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					pialaResource();
 					scene.clearChildScene();
@@ -1347,6 +1496,12 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					bengkelResource();
 					scene.clearChildScene();
@@ -1405,6 +1560,12 @@ public class Menu extends SimpleBaseGameActivity {
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 						float X, float Y) {
+					if(pSceneTouchEvent.isActionDown())
+					{
+						if(player.isSound) {
+							itemBoughtSound.play();
+						}					
+					}
 					if (pSceneTouchEvent.isActionUp()) {
 						if (player.coin >= 1000) {
 							player.updateCoin(player.coin - 1000);
@@ -1420,8 +1581,7 @@ public class Menu extends SimpleBaseGameActivity {
 								padding1 = 0;
 							}
 
-							harga1000.setPosition(cameraWidth * 0.6f,
-									player.getCameraHeight(0.65) + padding1);
+							harga1000.setPosition(cameraWidth * 0.55f + harga1000.getWidthScaled() / 2, player.getCameraHeight(0.725));
 							scene3.attachChild(harga1000);
 							scene3.unregisterTouchArea(harga1000);
 						}
@@ -1449,6 +1609,12 @@ public class Menu extends SimpleBaseGameActivity {
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 						float X, float Y) {
+					if(pSceneTouchEvent.isActionDown())
+					{
+						if(player.isSound) {
+							itemBoughtSound.play();
+						}					
+					}
 					if (pSceneTouchEvent.isActionUp()) {
 						if (player.coin >= 1500) {
 							player.updateCoin(player.coin - 1500);
@@ -1463,8 +1629,7 @@ public class Menu extends SimpleBaseGameActivity {
 								harga1500.setScale(player.scale);
 								padding2 = 0;
 							}
-							harga1500.setPosition(cameraWidth * 0.6f,
-									player.getCameraHeight(0.25) + padding2);
+							harga1500.setPosition(cameraWidth * 0.55f + harga1500.getWidthScaled() / 2, player.getCameraHeight(0.315));
 							scene3.attachChild(harga1500);
 							scene3.unregisterTouchArea(harga1500);
 						}
@@ -1487,6 +1652,12 @@ public class Menu extends SimpleBaseGameActivity {
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 						float X, float Y) {
+					if(pSceneTouchEvent.isActionDown())
+					{
+						if(player.isSound) {
+							itemBoughtSound.play();
+						}					
+					}
 					if (pSceneTouchEvent.isActionUp()) {
 						if (player.coin >= 3000) {
 							player.updateCoin(player.coin - 3000);
@@ -1502,8 +1673,7 @@ public class Menu extends SimpleBaseGameActivity {
 								padding3 = 0;
 							}
 
-							harga3000.setPosition(cameraWidth * 0.6f,
-									player.getCameraHeight(0.45) + padding3);
+							harga3000.setPosition(cameraWidth * 0.55f + harga3000.getWidthScaled() / 2, player.getCameraHeight(0.5));
 							scene3.attachChild(harga3000);
 							scene3.unregisterTouchArea(harga3000);
 						}
@@ -1513,13 +1683,9 @@ public class Menu extends SimpleBaseGameActivity {
 			};
 		}
 		float padding3 = 20;
-		if (player.scale != rachmad) {
-			harga3000.setScaleCenter(0, 0);
-			harga3000.setScale(player.scale);
-			padding3 = 0;
-		}
-
-		harga3000.setPosition(cameraWidth * 0.6f, player.getCameraHeight(0.5));
+		harga3000.setScale(player.scale);
+		
+		harga3000.setPosition(cameraWidth * 0.55f + harga3000.getWidthScaled() / 2, player.getCameraHeight(0.5));
 		scene3.registerTouchArea(harga3000);
 		scene3.attachChild(harga3000);
 
@@ -1527,10 +1693,17 @@ public class Menu extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X,
 					float Y) {
+				if(pSceneTouchEvent.isActionDown())
+				{
+					if(player.isSound) {
+						buttonClickedSound.play();
+					}					
+				}
 				if (pSceneTouchEvent.isActionUp()) {
 					menuResources();
 					scene3.clearChildScene();
 					scene3.clearTouchAreas();
+					itemBoughtSound = null;
 					loadMenu();
 				}
 				return true;

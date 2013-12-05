@@ -149,7 +149,7 @@ public class LayanganMasterDBAdapter {
 		else return false;
 	}
 	
-	public boolean isSound(String username){
+	public boolean isSoundOn(String username){
 		final String MY_QUERY = "SELECT isSound FROM USER where "
 				+ "username=?";
 
