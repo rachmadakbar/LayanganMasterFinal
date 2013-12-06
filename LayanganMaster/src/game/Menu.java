@@ -150,9 +150,7 @@ public class Menu extends SimpleBaseGameActivity {
 		mBackgroundTextureRegion = BitmapTextureAtlasTextureRegionFactory
 				.createFromAsset(this.mBitmapTextureAtlas, this, "sc1.png", 0,
 						0);
-		this.bgPositionX = mBackgroundTextureRegion.getWidth() / 2;
-		this.bgPositionY = mBackgroundTextureRegion.getHeight() / 2
-				+ player.paddingY;
+		
 		try {
 
 			ITexture menu_asset = new BitmapTexture(this.getTextureManager(),
@@ -512,7 +510,7 @@ public class Menu extends SimpleBaseGameActivity {
 		
 		try {
 			this.itemBoughtSound = SoundFactory.createSoundFromAsset(mEngine
-					.getSoundManager(), this, "coin.wav");
+					.getSoundManager(), this, "buy_item.wav");
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -671,11 +669,12 @@ public class Menu extends SimpleBaseGameActivity {
 		 * .getWidth()) / 2); final int centerY = (int) ((cameraHeight -
 		 * mBackgroundTextureRegion .getHeight()) / 2);
 		 */
+		background.setScaleCenter(0, 0);
+		background.setScale(player.scale);
+		
 		background = new Sprite(this.bgPositionX, this.bgPositionY,
 				mBackgroundTextureRegion, getVertexBufferObjectManager());
 
-		background.setScaleCenter(0, 0);
-		background.setScale(player.scale);
 		scene5.attachChild(background);
 		
 		menu = new Sprite(0, 0, mMenu, getVertexBufferObjectManager());
@@ -755,7 +754,7 @@ public class Menu extends SimpleBaseGameActivity {
 */
 		background = new Sprite(this.bgPositionX, this.bgPositionY, mBackgroundTextureRegion,
 				getVertexBufferObjectManager());
-		background.setScaleCenter(0, 0);
+		//background.setScaleCenter(0, 0);
 		background.setScale(player.scale);
 		scene6.attachChild(background);
 		
@@ -949,7 +948,7 @@ public class Menu extends SimpleBaseGameActivity {
 		home2.setScaleCenter(0, 0);
 		home2.setScale(player.scale);
 		// }
-		home2.setPosition(cameraWidth * 7 / 8, player.getCameraHeight(4 / 5.0));
+		home2.setPosition(this.homePositionX, this.homePositionY);
 		
 		menu2 = new Sprite(0, 0, mMenu2, getVertexBufferObjectManager());
 		
@@ -979,13 +978,12 @@ public class Menu extends SimpleBaseGameActivity {
 			};
 		};
 
-		if (player.scale != rachmad) {
-			santaiButton.setScaleCenter(0, 0);
+		//if (player.scale != rachmad) {
+			//santaiButton.setScaleCenter(0, 0);
 			santaiButton.setScale(player.scale);
-		}
+		//}
 
-		santaiButton.setPosition(cameraWidth * 0.25f,
-				Menu.player.getCameraHeight(0.7));
+		santaiButton.setPosition(cameraWidth / 2f, player.getCameraHeight(0.6));
 
 		enerjikButton = new Sprite(0, 0, mEnerjikButton,
 				getVertexBufferObjectManager()) {
@@ -1008,13 +1006,12 @@ public class Menu extends SimpleBaseGameActivity {
 			};
 		};
 
-		if (player.scale != rachmad) {
-			enerjikButton.setScaleCenter(0, 0);
+		//if (player.scale != rachmad) {
+			//enerjikButton.setScaleCenter(0, 0);
 			enerjikButton.setScale(player.scale);
-		}
+		//}
 
-		enerjikButton.setPosition(cameraWidth * 0.25f,
-				player.getCameraHeight(0.4));
+		enerjikButton.setPosition(cameraWidth / 2f, player.getCameraHeight(0.4));
 
 		mEngine.setScene(scene6);
 	}
@@ -1027,7 +1024,7 @@ public class Menu extends SimpleBaseGameActivity {
 				.getHeight()) / 2);*/
 		background = new Sprite(this.bgPositionX, this.bgPositionY, mBackgroundTextureRegion,
 				getVertexBufferObjectManager());
-		background.setScaleCenter(0, 0);
+		//background.setScaleCenter(0, 0);
 		background.setScale(player.scale);
 		scene2.attachChild(background);
 
@@ -1210,11 +1207,13 @@ public class Menu extends SimpleBaseGameActivity {
 		final int centerY = (int) ((cameraHeight - mBackgroundTextureRegion
 				.getHeight()) / 2);
 */
-		background = new Sprite(this.bgPositionX, this.bgPositionY, mBackgroundTextureRegion,
+		background = new Sprite(0,0, mBackgroundTextureRegion,
 				getVertexBufferObjectManager());
 
-		background.setScaleCenter(0, 0);
+		//background.setScaleCenter(0, 0);
 		background.setScale(player.scale);
+		
+		background.setPosition(this.bgPositionX, this.bgPositionY);
 		scene4.attachChild(background);
 
 		menu = new Sprite(0, 0, mMenu, getVertexBufferObjectManager());
@@ -1251,41 +1250,43 @@ public class Menu extends SimpleBaseGameActivity {
 		home.setPosition(this.homePositionX, this.homePositionY);
 		scene4.registerTouchArea(home);
 		scene4.attachChild(home);
+		
+		float paddingX = 0.15f;
 
-		hp = new Text(cameraWidth * 0.05f, player.getCameraHeight(0.3), mFont,
-				"HP       : " + player.HP, getVertexBufferObjectManager());
+		hp = new Text(cameraWidth * paddingX, player.getCameraHeight(0.3), mFont,
+				"HP     : " + player.HP, getVertexBufferObjectManager());
 		hp.setScaleCenter(0, 0);
 		hp.setScale(player.scale);
 		scene4.attachChild(hp);
 
-		exp = new Text(cameraWidth * 0.05f, player.getCameraHeight(0.5), mFont,
+		exp = new Text(cameraWidth * paddingX, player.getCameraHeight(0.5), mFont,
 				"EXP     : " + player.exp, getVertexBufferObjectManager());
 		exp.setScaleCenter(0, 0);
 		exp.setScale(player.scale);
 		scene4.attachChild(exp);
 
-		level = new Text(cameraWidth * 0.05f, player.getCameraHeight(0.7),
+		level = new Text(cameraWidth * paddingX, player.getCameraHeight(0.7),
 				mFont, "LEVEL : " + player.level,
 				getVertexBufferObjectManager());
 		level.setScaleCenter(0, 0);
 		level.setScale(player.scale);
 		scene4.attachChild(level);
 
-		attack = new Text(cameraWidth * 0.5f, player.getCameraHeight(0.3),
+		attack = new Text(cameraWidth * (0.5f+ paddingX), player.getCameraHeight(0.3),
 				mFont, "ATTACK  : " + player.attack,
 				getVertexBufferObjectManager());
 		attack.setScaleCenter(0, 0);
 		attack.setScale(player.scale);
 		scene4.attachChild(attack);
 
-		defense = new Text(cameraWidth * 0.5f, player.getCameraHeight(0.5),
+		defense = new Text(cameraWidth * (0.5f+ paddingX), player.getCameraHeight(0.5),
 				mFont, "DEFENSE : " + player.defense,
 				getVertexBufferObjectManager());
 		defense.setScaleCenter(0, 0);
 		defense.setScale(player.scale);
 		scene4.attachChild(defense);
 
-		speed = new Text(cameraWidth * 0.5f, player.getCameraHeight(0.7),
+		speed = new Text(cameraWidth * (0.5f+ paddingX), player.getCameraHeight(0.7),
 				mFont, "SPEED     : " + player.speed,
 				getVertexBufferObjectManager());
 		speed.setScaleCenter(0, 0);
@@ -1301,17 +1302,24 @@ public class Menu extends SimpleBaseGameActivity {
 		 * .getWidth()) / 2); final int centerY = (int) ((cameraHeight -
 		 * mBackgroundTextureRegion .getHeight()) / 2);
 		 */
-		background = new Sprite(this.bgPositionX, this.bgPositionY,
+		
+		
+		background = new Sprite(0,0,
 				mBackgroundTextureRegion, getVertexBufferObjectManager());
-		background.setScaleCenter(0, 0);
+		//background.setScaleCenter(0, 0);
 		background.setScale(player.scale);
+		
+		this.bgPositionX = background.getWidthScaled() / 2;
+		this.bgPositionY = background.getHeightScaled() / 2
+				+ player.paddingY;
+		background.setPosition(this.bgPositionX, this.bgPositionY);
 		scene.attachChild(background);
 
 		menu = new Sprite(0, 0, mMenu, getVertexBufferObjectManager());
 		menu.setScale(player.scale);
 		
 		this.titlePositionX = menu.getWidthScaled()/2;
-		this.titlePositionY = cameraHeight-menu.getHeightScaled()/2-player.paddingY;
+		this.titlePositionY = player.getCameraHeight(1)-menu.getHeightScaled()/2-player.paddingY;
 		
 		menu.setPosition(this.titlePositionX,
 				this.titlePositionY);
@@ -1338,10 +1346,14 @@ public class Menu extends SimpleBaseGameActivity {
 			};
 		};
 
+		
 		main.setScaleCenter(0, 0);
 		main.setScale(player.scale);
-		main.setPosition((cameraWidth / 4) + (mMain.getWidth() / 2),
-				(cameraHeight * 5 / 8) - (mMain.getHeight()/2));
+		float menuButtonPositionX = (float)(cameraWidth * 0.125) + (main.getWidthScaled() / 2);
+		
+		main.setPosition(menuButtonPositionX,
+				(player.getCameraHeight(0.65)) - (main.getHeightScaled() / 2));
+		//Debug.e("main", ""+player.getCameraHeight(5/8));
 		scene.registerTouchArea(main);
 		scene.attachChild(main);
 
@@ -1445,9 +1457,9 @@ public class Menu extends SimpleBaseGameActivity {
 					}					
 				}
 				if (pSceneTouchEvent.isActionUp()) {
-					startActivity(new Intent(getApplicationContext(),
+					/*startActivity(new Intent(getApplicationContext(),
 							Test.class));
-					finish();
+					finish();*/
 
 				}
 				return true;
@@ -1487,8 +1499,8 @@ public class Menu extends SimpleBaseGameActivity {
 
 		piala.setScaleCenter(0, 0);
 		piala.setScale(player.scale);
-		piala.setPosition((cameraWidth / 4) + (mPiala.getWidth() / 2),
-				(cameraHeight * 3 / 8) - (mPiala.getHeight()/2));
+		piala.setPosition(menuButtonPositionX,
+				(player.getCameraHeight(0.425)) - (piala.getHeightScaled() / 2));
 		scene.registerTouchArea(piala);
 		scene.attachChild(piala);
 
@@ -1514,8 +1526,8 @@ public class Menu extends SimpleBaseGameActivity {
 
 		bengkel.setScaleCenter(0, 0);
 		bengkel.setScale(player.scale);
-		bengkel.setPosition((cameraWidth / 4) + (mBengkel.getWidth() / 2),
-				(cameraHeight / 8) - (mBengkel.getHeight()/2));
+		bengkel.setPosition(menuButtonPositionX,
+				(player.getCameraHeight(0.2)) - (piala.getHeightScaled() / 2));
 		scene.registerTouchArea(bengkel);
 		scene.attachChild(bengkel);
 
@@ -1540,17 +1552,19 @@ public class Menu extends SimpleBaseGameActivity {
 		final int centerY = (int) ((cameraHeight - mBackgroundTextureRegion
 				.getHeight()) / 2);*/
 
-		background = new Sprite(this.bgPositionX , this.bgPositionY, mBackgroundTextureRegion,
+		background = new Sprite(0,0, mBackgroundTextureRegion,
 				getVertexBufferObjectManager());
-		background.setScaleCenter(0, 0);
+		//background.setScaleCenter(0, 0);
 		background.setScale(player.scale);
+		background.setPosition(this.bgPositionX , this.bgPositionY);
+		
 		scene3.attachChild(background);
 
 		menu = new Sprite(0, 0, mMenu, getVertexBufferObjectManager());
 		
 		menu.setScale(player.scale);
 		menu.setPosition(menu.getWidthScaled()/2,
-				cameraHeight-menu.getHeightScaled()/2-player.paddingY);
+				player.getCameraHeight(1f)-menu.getHeightScaled()/2-player.paddingY);
 		scene3.attachChild(menu);
 
 		if (player.buyBlue) {
@@ -1769,10 +1783,6 @@ public class Menu extends SimpleBaseGameActivity {
 				return true;
 			}
 		} else {
-			super.onDestroy();
-			if (this.isGameLoaded()) {
-				System.exit(0);
-			}
 			return super.onKeyDown(keyCode, event);
 		}
 
