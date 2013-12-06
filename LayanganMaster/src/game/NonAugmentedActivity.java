@@ -71,9 +71,9 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 	// ===========================================================
 	
 	private ITextureRegion mKiteTextureRegion, mBoxTextureRegion, mCoinScoreTextureRegion, 
-	mButtonUpTextureRegion, mButtonDownTextureRegion,  mBackgroundTextureRegion, mBgOverlayTextureRegion;
+	mButtonUpTextureRegion, mButtonDownTextureRegion,  mBackgroundTextureRegion, mBgOverlayTextureRegion, mHomeTextureRegion;
 	private Sprite kite, background, coinScore, powerBox1, powerBox2, powerBox3, buttonUp, buttonDown, fire, fire2, fire3, 
-	water, water2, water3, shield, shield2, shield3, bgOverlay;
+	water, water2, water3, shield, shield2, shield3, bgOverlay, home;
 	private int accellerometerSpeedX;
 	private int accellerometerSpeedY;
 	private SensorManager sensorManager;
@@ -127,6 +127,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 	
 	private boolean upIsTouchedFlag = false;
 	private boolean downIsTouchedFlag = false;
+	private boolean gameOverDisplayed = false;
 	
 	private Text gameOverText,timesUpText, finalText;
 	
@@ -227,6 +228,21 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 							return getAssets().open("asset/tarik.png");
 						}
 					});
+			ITexture coinIndicator_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/coin2.png");
+						}
+					});
+			
+			ITexture homeButton_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/home.png");
+						}
+					});
 			
 			bg_asset.load();
 			kite_asset.load();
@@ -237,6 +253,8 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 			kotak_asset.load();
 			buttonUp_asset.load();
 			buttonDown_asset.load();
+			coinIndicator_asset.load();
+			homeButton_asset.load();
 			
 			mBgOverlayTextureRegion = TextureRegionFactory.extractFromTexture(bg_asset);
 			mKiteTextureRegion = TextureRegionFactory.extractFromTexture(kite_asset);
@@ -247,6 +265,8 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 			mBoxTextureRegion = TextureRegionFactory.extractFromTexture(kotak_asset);
 			mButtonUpTextureRegion = TextureRegionFactory.extractFromTexture(buttonUp_asset);
 			mButtonDownTextureRegion = TextureRegionFactory.extractFromTexture(buttonDown_asset);
+			mCoinScoreTextureRegion = TextureRegionFactory.extractFromTexture(coinIndicator_asset);
+			mHomeTextureRegion = TextureRegionFactory.extractFromTexture(homeButton_asset);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -363,14 +383,16 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		scene.registerUpdateHandler(birdHandler);
 		createControllers();
 		
+		
+		
 		scoreText = new Text(0, 0, mFont, "      ", getVertexBufferObjectManager());
 		scoreText.setScale(scale);
-		scoreText.setPosition(cameraWidth - scoreText.getWidthScaled()/2, cameraHeight - (scoreText.getHeightScaled()/2) -paddingY);
+		scoreText.setPosition(cameraWidth - scoreText.getWidthScaled()/2, cameraHeight - (bgOverlay.getHeightScaled()/2) -paddingY);
 		scene.attachChild(scoreText);
 		
 		healthPoinText = new Text(0, 0, mFont, "Health Poins: 500 ", getVertexBufferObjectManager());
 		healthPoinText.setScale(scale);
-		healthPoinText.setPosition(healthPoinText.getWidthScaled()/2, cameraHeight - (healthPoinText.getHeightScaled()/2) - paddingY);
+		healthPoinText.setPosition(healthPoinText.getWidthScaled()/2, cameraHeight - (bgOverlay.getHeightScaled()/2) - paddingY);
 		scene.attachChild(healthPoinText);
 		
 		powerBox1 = new Sprite(0, 0, mBoxTextureRegion, this.getVertexBufferObjectManager());
@@ -387,6 +409,11 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		powerBox3.setScale(scale);
 		powerBox3.setPosition((cameraWidth * 2/3), (powerBox3.getHeightScaled()/2) + paddingY);
 		scene.attachChild(powerBox3);
+		
+		coinScore = new Sprite(0, 0, mCoinScoreTextureRegion, getVertexBufferObjectManager());
+		coinScore.setScale(scale);
+		coinScore.setPosition(cameraWidth - scoreText.getWidthScaled() - coinScore.getWidthScaled(), cameraHeight - (coinScore.getHeightScaled()/2) - paddingY);
+		scene.attachChild(coinScore);
 		
 		topLimit = cameraHeight ;
 		bottomLimit = paddingY;
@@ -486,7 +513,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 	
 	private void timeLimitTimeHandler(){
 		TimerHandler timeLimit;
-		float limit = 10f;
+		float limit = 30f;
 		timeLimit = new TimerHandler(limit, true,
 				new ITimerCallback() {
 
@@ -498,7 +525,9 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 	}
 	
 	public void onTimesUp(){
-	    displayTimesUpText();
+		if(!gameOverDisplayed){
+			displayTimesUpText();
+		}
 	}
 	
 	public void displayTimesUpText(){
@@ -522,6 +551,13 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 	    finalText.setScale(scale);
 	    finalText.setPosition(cameraWidth/2, cameraHeight/2 - finalText.getHeightScaled());
 	    timesUp.attachChild(finalText);
+	    
+	    home = new ButtonSprite(0, 0, mHomeTextureRegion, getVertexBufferObjectManager());
+		home.setScale(scale);
+		home.setPosition(home.getWidthScaled()/2, home.getHeightScaled()/2 + paddingY);
+		timesUp.attachChild(home);
+	    
+	    gameHUD.detachChildren();
 	    
 	    mEngine.setScene(timesUp);
 	    
@@ -598,7 +634,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 
 				if (hit) {
 					removeSprite(_coin, coin);
-					hitCount++;
+					hitCount += 50;
 					scoreText.setText(String.valueOf(hitCount));
 					hit = false;
 					//Debug.e("jumlah hitCount", String.valueOf(hitCount));
@@ -1090,11 +1126,11 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 	/*Button Controller*/
 	private void createControllers(){
 			
-		final int tL = cameraHeight;
-		final int bL = 0;
+		final int tL = cameraHeight - (int)kite.getHeightScaled() - (int)paddingY;
+		final int bL = (int) paddingY;
 		
 		/*Handler untuk button*/
-		tUp = new TimerHandler(0.01f, true,
+		tUp = new TimerHandler(0.007f, true,
 				new ITimerCallback() {
 			@Override 
 			public void onTimePassed(TimerHandler pTimerHandler) {
@@ -1127,7 +1163,7 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 		buttonUp.setPosition(cameraWidth - buttonUp.getWidthScaled()/2, buttonUp.getHeightScaled()/2 + paddingY);
 		
 		/*Handler untuk button down*/
-		tDown = new TimerHandler(0.01f, true,
+		tDown = new TimerHandler(0.007f, true,
 				new ITimerCallback() {
 					@Override
 					public void onTimePassed(TimerHandler pTimerHandler) {
@@ -1188,12 +1224,23 @@ public class NonAugmentedActivity extends SimpleBaseGameActivity implements Sens
 	    finalText.setPosition(cameraWidth/2, cameraHeight/2 - finalText.getHeightScaled());
 	    gameOver.attachChild(finalText);
 	    
+	   home = new ButtonSprite(0, 0, mHomeTextureRegion, getVertexBufferObjectManager());
+	   home.setScale(scale);
+	   home.setPosition(home.getWidthScaled()/2, home.getHeightScaled()/2 + paddingY);
+	   gameOver.attachChild(home);
+	    
+	   gameHUD.detachChildren();
+	   gameOverDisplayed = true;
+	    
 	    mEngine.setScene(gameOver);
 	    
 	}
 	
 	public void onDie(){
-	    displayGameOverText();
+		if (!gameOverDisplayed){
+			displayGameOverText();
+		}
+	    
 	}
 
 }

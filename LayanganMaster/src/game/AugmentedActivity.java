@@ -66,9 +66,9 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		// ===========================================================
 		
 		private ITextureRegion mKiteTextureRegion, mBoxTextureRegion, mCoinScoreTextureRegion, 
-		mButtonUpTextureRegion, mButtonDownTextureRegion, mBgOverlayTextureRegion;
+		mButtonUpTextureRegion, mButtonDownTextureRegion, mBgOverlayTextureRegion, mHomeTextureRegion;
 		private Sprite kite, background, coinScore, powerBox1, powerBox2, powerBox3, buttonUp, buttonDown, fire, fire2, fire3, 
-		water, water2, water3, shield, shield2, shield3, bgOverlay;
+		water, water2, water3, shield, shield2, shield3, bgOverlay, home;
 		private int accellerometerSpeedX;
 		private int accellerometerSpeedY;
 		private SensorManager sensorManager;
@@ -123,6 +123,7 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		
 		private boolean upIsTouchedFlag = false;
 		private boolean downIsTouchedFlag = false;
+		private boolean gameOverDisplayed = false;
 		
 		private Text gameOverText,timesUpText, finalText;
 		private int kecepatan;
@@ -223,6 +224,22 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 						}
 					});
 			
+			ITexture coinIndicator_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/coin2.png");
+						}
+					});
+			
+			ITexture homeButton_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/home.png");
+						}
+					});
+			
 			bg_asset.load();
 			kite_asset.load();
 			coin_asset.load();
@@ -232,6 +249,8 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 			kotak_asset.load();
 			buttonUp_asset.load();
 			buttonDown_asset.load();
+			coinIndicator_asset.load();
+			homeButton_asset.load();
 			
 			mBgOverlayTextureRegion = TextureRegionFactory.extractFromTexture(bg_asset);
 			mKiteTextureRegion = TextureRegionFactory.extractFromTexture(kite_asset);
@@ -242,6 +261,8 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 			mBoxTextureRegion = TextureRegionFactory.extractFromTexture(kotak_asset);
 			mButtonUpTextureRegion = TextureRegionFactory.extractFromTexture(buttonUp_asset);
 			mButtonDownTextureRegion = TextureRegionFactory.extractFromTexture(buttonDown_asset);
+			mCoinScoreTextureRegion = TextureRegionFactory.extractFromTexture(coinIndicator_asset);
+			mHomeTextureRegion = TextureRegionFactory.extractFromTexture(homeButton_asset);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -352,12 +373,12 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		
 		scoreText = new Text(0, 0, mFont, "      ", getVertexBufferObjectManager());
 		scoreText.setScale(scale);
-		scoreText.setPosition(cameraWidth - scoreText.getWidthScaled()/2, cameraHeight - (scoreText.getHeightScaled()/2) -paddingY);
+		scoreText.setPosition(cameraWidth - scoreText.getWidthScaled()/2, cameraHeight - (bgOverlay.getHeightScaled()/2) -paddingY);
 		scene.attachChild(scoreText);
 		
 		healthPoinText = new Text(0, 0, mFont, "Health Poins: 500 ", getVertexBufferObjectManager());
 		healthPoinText.setScale(scale);
-		healthPoinText.setPosition(healthPoinText.getWidthScaled()/2, cameraHeight - (healthPoinText.getHeightScaled()/2) - paddingY);
+		healthPoinText.setPosition(healthPoinText.getWidthScaled()/2, cameraHeight - (bgOverlay.getHeightScaled()/2) - paddingY);
 		scene.attachChild(healthPoinText);
 		
 		powerBox1 = new Sprite(0, 0, mBoxTextureRegion, this.getVertexBufferObjectManager());
@@ -374,6 +395,11 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		powerBox3.setScale(scale);
 		powerBox3.setPosition((cameraWidth * 2/3), (powerBox3.getHeightScaled()/2) + paddingY);
 		scene.attachChild(powerBox3);
+		
+		coinScore = new Sprite(0, 0, mCoinScoreTextureRegion, getVertexBufferObjectManager());
+		coinScore.setScale(scale);
+		coinScore.setPosition(cameraWidth - scoreText.getWidthScaled() - coinScore.getWidthScaled(), cameraHeight - (coinScore.getHeightScaled()/2) - paddingY);
+		scene.attachChild(coinScore);
 		
 		topLimit = cameraHeight ;
 		bottomLimit = paddingY;
@@ -462,6 +488,49 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		}
 	}
 	
+	private void timeLimitTimeHandler(){
+		TimerHandler timeLimit;
+		float limit = 30f;
+		timeLimit = new TimerHandler(limit, true,
+				new ITimerCallback() {
+
+			public void onTimePassed(TimerHandler pTimerHandler) {
+				onTimesUp();
+			}
+		});
+		getEngine().registerUpdateHandler(timeLimit);
+	}
+	
+	public void onTimesUp(){
+		if (!gameOverDisplayed){
+			displayTimesUpText();
+		}
+	}
+	
+	public void displayTimesUpText(){
+	    Scene timesUp = new Scene();
+	   
+		timesUpText = new Text(0, 0, mGameOverFont, "Time's Up!", getVertexBufferObjectManager());
+		timesUpText.setScale(scale);
+		timesUpText.setPosition(cameraWidth/2, cameraHeight/2 + timesUpText.getHeightScaled()/2);
+	    timesUp.attachChild(timesUpText);
+	    
+	    finalText = new Text(0, 0, mFinalFont, "Coins attained: "+String.valueOf(hitCount), getVertexBufferObjectManager());
+	    finalText.setScale(scale);
+	    finalText.setPosition(cameraWidth/2, cameraHeight/2 - finalText.getHeightScaled());
+	    timesUp.attachChild(finalText);
+	    
+	    home = new ButtonSprite(0, 0, mHomeTextureRegion, getVertexBufferObjectManager());
+		home.setScale(scale);
+		home.setPosition(home.getWidthScaled()/2, home.getHeightScaled()/2 + paddingY);
+		timesUp.attachChild(home);
+	    
+	    gameHUD.detachChildren();
+	    
+	    mEngine.setScene(timesUp);
+	    
+	}
+	
 	private void createCoinSpriteTimeHandler(){
 		TimerHandler coinTimerHandler;
 		
@@ -532,7 +601,7 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 
 				if (hit) {
 					removeSprite(_coin, coin);
-					hitCount++;
+					hitCount += 50;
 					scoreText.setText(String.valueOf(hitCount));
 					hit = false;
 					//Debug.e("jumlah hitCount", String.valueOf(hitCount));
@@ -830,7 +899,7 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 					}
 					
 					if (healthPoin == 0){
-//						onDie();
+						onDie();
 					}
 					if (_bird.getX() < 0){
 						removeSprite(_bird, birdLeft);
@@ -1024,11 +1093,11 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 	/*Button Controller*/
 	private void createControllers(){
 			
-		final int tL = cameraHeight;
-		final int bL = 0;
+		final int tL = cameraHeight - (int)kite.getHeightScaled() - (int)paddingY;
+		final int bL = (int) paddingY;
 		
 		/*Handler untuk button*/
-		tUp = new TimerHandler(0.01f, true,
+		tUp = new TimerHandler(0.007f, true,
 				new ITimerCallback() {
 			@Override 
 			public void onTimePassed(TimerHandler pTimerHandler) {
@@ -1061,7 +1130,7 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		buttonUp.setPosition(cameraWidth - buttonUp.getWidthScaled()/2, buttonUp.getHeightScaled()/2 + paddingY);
 		
 		/*Handler untuk button down*/
-		tDown = new TimerHandler(0.01f, true,
+		tDown = new TimerHandler(0.007f, true,
 				new ITimerCallback() {
 					@Override
 					public void onTimePassed(TimerHandler pTimerHandler) {
@@ -1097,6 +1166,37 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 	    gameHUD.attachChild(buttonUp);
 	    gameHUD.attachChild(buttonDown);
 	    camera.setHUD(gameHUD);
+	}
+	
+	public void displayGameOverText(){
+	    Scene gameOver = new Scene();
+	    
+		gameOverText = new Text(0, 0, mGameOverFont, "Game Over!", getVertexBufferObjectManager());
+		gameOverText.setScale(scale);
+		gameOverText.setPosition(cameraWidth/2, cameraHeight/2 + gameOverText.getHeightScaled()/2);
+	    gameOver.attachChild(gameOverText);
+	    
+	    finalText = new Text(0, 0, mFinalFont, "Coins attained: "+String.valueOf(hitCount), getVertexBufferObjectManager());
+	    finalText.setScale(scale);
+	    finalText.setPosition(cameraWidth/2, cameraHeight/2 - finalText.getHeightScaled());
+	    gameOver.attachChild(finalText);
+	    
+	    home = new ButtonSprite(0, 0, mHomeTextureRegion, getVertexBufferObjectManager());
+		home.setScale(scale);
+		home.setPosition(home.getWidthScaled()/2, home.getHeightScaled()/2 + paddingY);
+		gameOver.attachChild(home);
+	    
+	    gameOverDisplayed = true;
+	    gameHUD.detachChildren();
+	    
+	    mEngine.setScene(gameOver);
+	    
+	}
+	
+	public void onDie(){
+		if (!gameOverDisplayed){
+			displayGameOverText();
+		}
 	}
 
 }
