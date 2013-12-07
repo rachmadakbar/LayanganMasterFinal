@@ -43,14 +43,14 @@ import org.andengine.util.adt.color.Color;
 import org.andengine.util.adt.io.in.IInputStreamOpener;
 import org.andengine.util.debug.Debug;
 
+import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Bundle;
-import android.app.Activity;
+import android.os.Vibrator;
 import android.view.Display;
-import android.view.Menu;
 
 public class AugmentedActivity extends BaseAugmentedRealityGameActivity implements SensorEventListener {
 	
@@ -65,10 +65,10 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		// Fields
 		// ===========================================================
 		
-		private ITextureRegion mKiteTextureRegion, mBoxTextureRegion, mCoinScoreTextureRegion, 
+		private ITextureRegion mKiteTextureRegion, mKite2TextureRegion, mKite3TextureRegion, mBoxTextureRegion, mCoinScoreTextureRegion, 
 		mButtonUpTextureRegion, mButtonDownTextureRegion, mBgOverlayTextureRegion, mHomeTextureRegion;
-		private Sprite kite, background, coinScore, powerBox1, powerBox2, powerBox3, buttonUp, buttonDown, fire, fire2, fire3, 
-		water, water2, water3, shield, shield2, shield3, bgOverlay, home;
+		private Sprite kite, background, coinScore, powerBox1, powerBox2, powerBox3, buttonUp, buttonDown, fire1, fire2, fire3, 
+		water1, water2, water3, shield1, shield2, shield3, bgOverlay, home;
 		private int accellerometerSpeedX;
 		private int accellerometerSpeedY;
 		private SensorManager sensorManager;
@@ -101,9 +101,9 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		private LinkedList ShieldLL;
 		private LinkedList ShieldToBeAdded;
 		
-		private String box1 = "";
-		private String box2 = "";
-		private String box3 = "";
+		private String box1 = "kosong";
+		private String box2 = "kosong";
+		private String box3 = "kosong";
 		private int pointer = 1;
 		
 		private float scale, paddingY;
@@ -116,7 +116,7 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		/*untuk text perolehan coin dan HP*/
 		private Font mFont, mGameOverFont, mFinalFont;
 		private Text scoreText, healthPoinText;
-		private int healthPoin = 500;
+		private int healthPoin = Menu.player.HP;
 		
 		/*HUD game*/
 		private HUD gameHUD;
@@ -126,7 +126,41 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		private boolean gameOverDisplayed = false;
 		
 		private Text gameOverText,timesUpText, finalText;
-		private int kecepatan;
+		private double kecepatan = Menu.player.lari;
+		
+		/*punya rachmad*/
+		private ITextureRegion mHitArea, mCollidePoint,
+		mTarik, mUlur, mVs1, mVs2, mVs3, mFire, mWater, mShield;
+		
+		final Scene scene2 = new Scene();
+		
+		Sprite hitArea1, collidePoint1, hitArea2, collidePoint2,
+			 tarik, ulur, vs, item1, item2, item3;
+		//	private Font mFont;
+		private Text attackCountText, hpt, hpvt;
+		private int attackCount = 0;
+
+		private Sprite[] tombolBawah = new Sprite[20];
+		private boolean[] isActive = new boolean[20];
+		int collide = -1;
+
+		private Sprite[] tombolAtas = new Sprite[20];
+		private boolean[] isActive2 = new boolean[20];
+		int collide2 = -1;
+
+		private float startingDuration = 5.0f;
+
+		int hit = 0, miss = 0;
+		int attacked = 0;
+		int attack = 0;
+		int i = 0;
+		int j = 0;
+
+		int hp, hpv, atk, atkv, def, defv, spd;
+
+		float position;
+
+		boolean startVs, fire, water, shield;
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -152,6 +186,39 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 	@Override
 	protected void onCreateResources() throws IOException {
 		// TODO Auto-generated method stub
+		survivalResources();
+		
+		FontFactory.setAssetBasePath("font/");
+
+		mFont = FontFactory.createFromAsset(mEngine.getFontManager(),
+		            mEngine.getTextureManager(), 256, 256, TextureOptions.BILINEAR,
+		            this.getAssets(), "Averia-Regular.ttf", 14f, true,
+		            Color.WHITE_ABGR_PACKED_INT);
+		mFont.load();
+		
+		mGameOverFont = FontFactory.createFromAsset(mEngine.getFontManager(),
+	            mEngine.getTextureManager(), 256, 256, TextureOptions.BILINEAR,
+	            this.getAssets(), "Ding Dong Daddyo NF.ttf", 30f, true,
+	            Color.WHITE_ABGR_PACKED_INT);
+		mGameOverFont.load();
+		
+		mFinalFont = FontFactory.createFromAsset(mEngine.getFontManager(),
+	            mEngine.getTextureManager(), 256, 256, TextureOptions.BILINEAR,
+	            this.getAssets(), "Candara.ttf", 22f, true,
+	            Color.WHITE_ABGR_PACKED_INT);
+		mFinalFont.load();
+	}
+
+	@Override
+	protected Scene onCreateScene() {
+		// TODO Auto-generated method stub
+		
+		survivalScene();
+		
+		return scene;
+	}
+	
+	private void survivalResources(){
 		mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(),
 				512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("asset/");
@@ -171,6 +238,23 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 							return getAssets().open("asset/kite1.png");
 						}
 					});
+			
+			ITexture kite2_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/kite2.png");
+						}
+					});
+			
+			ITexture kite3_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/kite3.png");
+						}
+					});
+			
 			ITexture coin_asset = new BitmapTexture(this.getTextureManager(),
 					new IInputStreamOpener() {
 						@Override
@@ -242,6 +326,8 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 			
 			bg_asset.load();
 			kite_asset.load();
+			kite2_asset.load();
+			kite3_asset.load();
 			coin_asset.load();
 			fire_asset.load();
 			water_asset.load();
@@ -254,6 +340,8 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 			
 			mBgOverlayTextureRegion = TextureRegionFactory.extractFromTexture(bg_asset);
 			mKiteTextureRegion = TextureRegionFactory.extractFromTexture(kite_asset);
+			mKite2TextureRegion = TextureRegionFactory.extractFromTexture(kite2_asset);
+			mKite3TextureRegion = TextureRegionFactory.extractFromTexture(kite3_asset);
 			mCoinTextureRegion = TextureRegionFactory.extractFromTexture(coin_asset);
 			mFireTextureRegion = TextureRegionFactory.extractFromTexture(fire_asset);
 			mWaterTextureRegion = TextureRegionFactory.extractFromTexture(water_asset);
@@ -280,32 +368,9 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		} catch (TextureAtlasBuilderException e) {
 			Debug.e(e);
 		}
-		
-		FontFactory.setAssetBasePath("font/");
-
-		mFont = FontFactory.createFromAsset(mEngine.getFontManager(),
-		            mEngine.getTextureManager(), 256, 256, TextureOptions.BILINEAR,
-		            this.getAssets(), "Averia-Regular.ttf", 14f, true,
-		            Color.WHITE_ABGR_PACKED_INT);
-		mFont.load();
-		
-		mGameOverFont = FontFactory.createFromAsset(mEngine.getFontManager(),
-	            mEngine.getTextureManager(), 256, 256, TextureOptions.BILINEAR,
-	            this.getAssets(), "Ding Dong Daddyo NF.ttf", 30f, true,
-	            Color.WHITE_ABGR_PACKED_INT);
-		mGameOverFont.load();
-		
-		mFinalFont = FontFactory.createFromAsset(mEngine.getFontManager(),
-	            mEngine.getTextureManager(), 256, 256, TextureOptions.BILINEAR,
-	            this.getAssets(), "Candara.ttf", 22f, true,
-	            Color.WHITE_ABGR_PACKED_INT);
-		mFinalFont.load();
 	}
-
-	@Override
-	protected Scene onCreateScene() {
-		// TODO Auto-generated method stub
-		
+	
+	private void survivalScene(){
 		scale = cameraWidth / 400f;
 		paddingY = (cameraHeight - 240 * scale) / 2;
 		kecepatan = 0;
@@ -362,14 +427,7 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		this.BirdToBeAddedRight = new LinkedList<Sprite>();
 		
 		
-//		timeLimitTimeHandler();
-		createCoinSpriteTimeHandler();
-		scene.registerUpdateHandler(coinHandler);
-		createPowerSpriteTimeHandler();
-		scene.registerUpdateHandler(powerHandler);
-		createBirdSpriteTimeHandler();
-		scene.registerUpdateHandler(birdHandler);
-		createControllers();
+		
 		
 		scoreText = new Text(0, 0, mFont, "      ", getVertexBufferObjectManager());
 		scoreText.setScale(scale);
@@ -404,30 +462,784 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		topLimit = cameraHeight ;
 		bottomLimit = paddingY;
 		
-		fire = new Sprite(0, 0, mFireTextureRegion, this.getVertexBufferObjectManager());
+		fire1 = new Sprite(0, 0, mFireTextureRegion, this.getVertexBufferObjectManager());
 		fire2 = new Sprite(0, 0, mFireTextureRegion, this.getVertexBufferObjectManager());
 		fire3 = new Sprite(0, 0, mFireTextureRegion, this.getVertexBufferObjectManager());
-		water = new Sprite(0, 0, mWaterTextureRegion, this.getVertexBufferObjectManager());
+		water1 = new Sprite(0, 0, mWaterTextureRegion, this.getVertexBufferObjectManager());
 		water2 = new Sprite(0, 0, mWaterTextureRegion, this.getVertexBufferObjectManager());
 		water3 = new Sprite(0, 0, mWaterTextureRegion, this.getVertexBufferObjectManager());
-		shield = new Sprite(0, 0, mShieldTextureRegion, this.getVertexBufferObjectManager());
+		shield1 = new Sprite(0, 0, mShieldTextureRegion, this.getVertexBufferObjectManager());
 		shield2 = new Sprite(0, 0, mShieldTextureRegion, this.getVertexBufferObjectManager());
 		shield3 = new Sprite(0, 0, mShieldTextureRegion, this.getVertexBufferObjectManager());
 		
-		fire.setScale(scale);
+		fire1.setScale(scale);
 		fire2.setScale(scale);
 		fire3.setScale(scale);
 		
-		water.setScale(scale);
+		water1.setScale(scale);
 		water2.setScale(scale);
 		water3.setScale(scale);
 		
-		shield.setScale(scale);
+		shield1.setScale(scale);
 		shield2.setScale(scale);
 		shield3.setScale(scale);
 		
-		return scene;
+		timeLimitTimeHandler();
+		createCoinSpriteTimeHandler();
+		scene.registerUpdateHandler(coinHandler);
+		createPowerSpriteTimeHandler();
+		scene.registerUpdateHandler(powerHandler);
+		createBirdSpriteTimeHandler();
+		scene.registerUpdateHandler(birdHandler);
+		createControllers();
+		
+		mEngine.setScene(scene);
 	}
+	
+	private void battleModeResource(){
+		position = cameraWidth / 2f;
+		// TODO Auto-generated method stub
+		mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(),
+				512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		// setting assets path for easy access
+		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("asset/");
+		// loading the image inside the container
+		
+
+		mEngine.getTextureManager().loadTexture(mBitmapTextureAtlas);
+
+		try {
+
+			ITexture bg_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/overlaybg.png");
+						}
+					});
+			ITexture collidepoint_asset = new BitmapTexture(
+					this.getTextureManager(), new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/checker.png");
+						}
+					});
+
+			ITexture tarik_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/tarik.png");
+						}
+					});
+			ITexture ulur_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/ulur.png");
+						}
+					});
+
+			ITexture vs1_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/vs1.png");
+						}
+					});
+
+			ITexture vs2_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/vs2.png");
+						}
+					});
+
+			ITexture vs3_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/vs3.png");
+						}
+					});
+
+			ITexture fire_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/fire.png");
+						}
+					});
+			ITexture water_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/water.png");
+						}
+					});
+			ITexture shield_asset = new BitmapTexture(this.getTextureManager(),
+					new IInputStreamOpener() {
+						@Override
+						public InputStream open() throws IOException {
+							return getAssets().open("asset/shield.png");
+						}
+					});
+
+			bg_asset.load();
+			collidepoint_asset.load();
+			tarik_asset.load();
+			ulur_asset.load();
+			vs1_asset.load();
+			vs2_asset.load();
+			vs3_asset.load();
+			fire_asset.load();
+			water_asset.load();
+			shield_asset.load();
+
+			mHitArea = TextureRegionFactory.extractFromTexture(bg_asset);
+			mCollidePoint = TextureRegionFactory
+					.extractFromTexture(collidepoint_asset);
+			mTarik = TextureRegionFactory.extractFromTexture(tarik_asset);
+			mUlur = TextureRegionFactory.extractFromTexture(ulur_asset);
+			mVs1 = TextureRegionFactory.extractFromTexture(vs1_asset);
+			mVs2 = TextureRegionFactory.extractFromTexture(vs2_asset);
+			mVs3 = TextureRegionFactory.extractFromTexture(vs3_asset);
+			mFire = TextureRegionFactory.extractFromTexture(fire_asset);
+			mWater = TextureRegionFactory.extractFromTexture(water_asset);
+			mShield = TextureRegionFactory.extractFromTexture(shield_asset);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	boolean hasInitVs = false;
+	
+	private void battleModeScene(){
+		scene2.getBackground().setColor(Color.TRANSPARENT);
+
+		this.mEngine.registerUpdateHandler(new FPSLogger());
+		if(!hasInitVs ) {
+			hasInitVs = true;
+			initVs();
+		}
+		
+
+		hitArea1 = new Sprite(0, 0, mHitArea, getVertexBufferObjectManager());
+		hitArea1.setScale(Menu.player.scale);
+		hitArea1.setPosition(cameraWidth / 2,
+				cameraHeight - hitArea1.getHeightScaled() / 2
+						- Menu.player.paddingY);
+		scene2.attachChild(hitArea1);
+
+		collidePoint1 = new Sprite(0, 0, mCollidePoint,
+				getVertexBufferObjectManager());
+		collidePoint1.setScale(Menu.player.scale);
+		collidePoint1.setPosition(cameraWidth - collidePoint1.getWidthScaled()
+				/ 2, cameraHeight - collidePoint1.getHeightScaled() / 2
+				- Menu.player.paddingY);
+		scene2.attachChild(collidePoint1);
+
+		hitArea2 = new Sprite(0, 0, mHitArea, getVertexBufferObjectManager());
+		hitArea2.setScale(Menu.player.scale);
+		hitArea2.setPosition(
+				cameraWidth / 2,
+				cameraHeight - hitArea2.getHeightScaled() / 2
+						- Menu.player.getCameraHeight(0.15));
+		scene2.attachChild(hitArea2);
+
+		collidePoint2 = new Sprite(0, 0, mCollidePoint,
+				getVertexBufferObjectManager());
+		collidePoint2.setScale(Menu.player.scale);
+		collidePoint2.setPosition(cameraWidth - collidePoint2.getWidthScaled()
+				/ 2, cameraHeight - collidePoint2.getHeightScaled() / 2
+				- Menu.player.getCameraHeight(0.15));
+		scene2.attachChild(collidePoint2);
+
+		ulur = new Sprite(0, 0, mUlur, getVertexBufferObjectManager()) {
+			@Override
+			public boolean onAreaTouched(TouchEvent pscene2TouchEvent, float X,
+					float Y) {
+				if (pscene2TouchEvent.isActionUp()) {
+					if (collide2 >= 0) {
+						attack += 5;
+						hit++;
+						scene2.detachChild(tombolAtas[collide2]);
+						tombolAtas[collide2] = null;
+						isActive2[collide2] = false;
+						collide2 = -1;
+					} else {
+						miss++;
+						attacked += 2;
+					}
+				}
+				return true;
+			};
+		};
+
+		ulur.setScale(Menu.player.scale);
+		ulur.setPosition(cameraWidth - ulur.getWidthScaled() / 2,
+				ulur.getHeightScaled() / 2 + Menu.player.paddingY);
+		scene2.attachChild(ulur);
+		scene2.registerTouchArea(ulur);
+
+		tarik = new Sprite(0, 0, mTarik, getVertexBufferObjectManager()) {
+			@Override
+			public boolean onAreaTouched(TouchEvent pscene2TouchEvent, float X,
+					float Y) {
+
+				if (pscene2TouchEvent.isActionUp()) {
+					if (collide >= 0) {
+						attack += 5;
+						hit++;
+						scene2.detachChild(tombolBawah[collide]);
+						tombolBawah[collide] = null;
+						isActive[collide] = false;
+						collide = -1;
+					} else {
+						miss++;
+						attacked += 2;
+					}
+				}
+
+				return true;
+			};
+		};
+
+		tarik.setScale(Menu.player.scale);
+		tarik.setPosition(tarik.getWidthScaled() / 2, tarik.getHeightScaled()
+				/ 2 + Menu.player.paddingY);
+		scene2.attachChild(tarik);
+		scene2.registerTouchArea(tarik);
+		//
+		attackCountText = new Text(cameraWidth / 2, 0, mFont, "           ",
+				getVertexBufferObjectManager());
+		attackCountText.setScaleCenter(0, 0);
+		attackCountText.setScale(Menu.player.scale);
+		scene2.attachChild(attackCountText);
+		//
+		mEngine.registerUpdateHandler(new TimerHandler(0.01f, true,
+				new ITimerCallback() {
+
+					@Override
+					public void onTimePassed(TimerHandler pTimerHandler) {
+						// TODO Auto-generated method stub
+						if (fire) {
+							if (position < cameraWidth - vs.getWidthScaled()
+									/ 2) {
+								position += 1f;
+								vs.setX(position);
+
+							} else {
+								j++;
+								if (j < 5) {
+									hpv = Math.max(0, hpv - atk * (4-Menu.player.exp/300));
+									Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+									v.vibrate(300);
+									hpt.setText("HP : " + hp);
+									hpvt.setText("HP : " + hpv);
+									if (j != 4) {
+										position = cameraWidth * 0.75f;
+									}
+								} else {
+									fire = false;
+									j = 0;
+								}
+							}
+						} else if (water) {
+							if (position < cameraWidth - vs.getWidthScaled()
+									/ 2) {
+								position += 1f;
+								vs.setX(position);
+
+							} else {
+								hpv = Math.max(0, hpv - atk * (5-Menu.player.exp/300));
+								Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+								v.vibrate(300);
+								hpt.setText("HP : " + hp);
+								hpvt.setText("HP : " + hpv);
+								water = false;
+							}
+						} else if (shield) {
+							j++;
+							if (j == 300) {
+								j = 0;
+								shield = false;
+							}
+
+						}
+					}
+				}));
+
+		this.createSpriteSpawnTimeHandler();
+
+		mEngine.registerUpdateHandler(new TimerHandler(0.02f, true,
+				new ITimerCallback() {
+
+					@Override
+					public void onTimePassed(TimerHandler pTimerHandler) {
+						// TODO Auto-generated method stub
+
+						if (!fire && !water) {
+							if (hp <= 0 || hpv <= 0) {
+								Debug.e("rachmad nakal", "woooo");
+								startActivity(new Intent(getApplicationContext(),
+										Menu.class));
+								finish();
+							}
+
+							boolean active = false;
+							if (attack > 0) {
+								active = true;
+								if (position < cameraWidth
+										- vs.getWidthScaled() / 2) {
+									position += 3f;
+									vs.setX(position);
+								}
+								attack--;
+							}
+
+							if (attack == 0 && active) {
+								if (position > cameraWidth / 2) {
+									if (position < cameraWidth
+											- vs.getWidthScaled() / 2) {
+										hpv = Math.max(0, hpv - atk * (3-Menu.player.exp/300));
+									} else {
+										hpv = Math.max(0, hpv - atk * (5-Menu.player.exp/300));
+									}
+								}
+								active = false;
+								Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+								v.vibrate(300);
+							}
+							hpt.setText("HP : " + hp);
+							hpvt.setText("HP : " + hpv);
+						}
+					}
+
+				}));
+
+		mEngine.registerUpdateHandler(new TimerHandler(0.04f, true, new ITimerCallback() {
+
+			@Override
+			public void onTimePassed(TimerHandler pTimerHandler) {
+				// TODO Auto-generated method stub
+				if (!fire && !water && !shield) {
+					if (hp <= 0 || hpv <= 0) {
+
+					}
+
+					boolean active = false;
+
+					if (startVs) {
+						attacked++;
+
+						if (attacked > 0) {
+							i++;
+							if (position > vs.getWidthScaled() / 2) {
+								position -= 2f;
+								vs.setX(position);
+							}
+							attacked -= 2;
+						}
+
+						if (i >= 10) {
+							i = 0;
+							active = true;
+						}
+
+						if (attacked <= 0 && active) {
+							if (position < cameraWidth / 2) {
+								if (position > vs.getWidthScaled() / 2) {
+									hp = Math.max(0,
+											hp - Math.max(1, atkv * (3-Menu.player.exp/300) - def));
+								} else {
+									hp = Math.max(
+											0,
+											(int) (hp - Math.max(1, atkv * (5-Menu.player.exp/300)
+													- def)));
+									Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+									v.vibrate(300);
+								}
+							}
+							active = false;
+						}
+					}
+					hpt.setText("HP : " + hp);
+					hpvt.setText("HP : " + hpv);
+				}
+			}
+
+		}));
+
+		mEngine.registerUpdateHandler(new TimerHandler(0.1f, true,
+				new ITimerCallback() {
+
+					@Override
+					public void onTimePassed(TimerHandler pTimerHandler) {
+						// TODO Auto-generated method stub
+
+						collide = -1;
+						for (int i = 0; i < 20; i++) {
+							if (tombolBawah[i] != null) {
+								if (tombolBawah[i].getX() > cameraWidth + 50) {
+									scene2.detachChild(tombolBawah[i]);
+									tombolBawah[i] = null;
+									isActive[i] = false;
+									miss++;
+									attacked += 10;
+								} else if (tombolBawah[i]
+										.collidesWith(collidePoint2)) {
+									startVs = true;
+									collide = i;
+									break;
+								}
+							}
+						}
+
+						collide2 = -1;
+						for (int i = 0; i < 20; i++) {
+							if (tombolAtas[i] != null) {
+								if (tombolAtas[i].getX() > cameraWidth + 50) {
+									scene2.detachChild(tombolAtas[i]);
+									tombolAtas[i] = null;
+									isActive2[i] = false;
+									miss++;
+									attacked += 10;
+								} else if (tombolAtas[i]
+										.collidesWith(collidePoint1)) {
+									startVs = true;
+									collide2 = i;
+									break;
+								}
+							}
+						}
+
+					}
+				}));
+
+		hpt = new Text(100 * Menu.player.scale,
+				Menu.player.getCameraHeight(0.3), mFont, "HP : " + hp,
+				getVertexBufferObjectManager());
+		hpt.setScale(Menu.player.scale);
+		scene2.attachChild(hpt);
+
+		hpvt = new Text(cameraWidth - 100 * Menu.player.scale,
+				Menu.player.getCameraHeight(0.3), mFont, "HP : " + hpv,
+				getVertexBufferObjectManager());
+		hpvt.setScale(Menu.player.scale);
+		scene2.attachChild(hpvt);
+		
+		mEngine.setScene(scene2);
+	}
+	
+	private void win(){
+		int old = Menu.player.level;
+		Menu.player.updateExp(Menu.player.exp+20);
+		Menu.player.updatePower(3, 3, 5, 350);
+		if(old != 3 && Menu.player.level==3){
+			startActivity(new Intent(getApplicationContext(),
+					EndStory.class));
+			finish();
+		}
+	}
+	
+	private void lose(){
+		Menu.player.updateExp(Menu.player.exp+5);
+		Menu.player.updatePower(1, 1, 1, 150);
+	}
+	
+	private void initVs() {
+		//Menu.player.updateExp(300);
+		//Menu.player.updatePower(55, 55, 85, 6250);
+		hp = healthPoin;
+		atk = Menu.player.attack;
+		def = Menu.player.defense;
+		spd = Menu.player.speed;
+		hpv = (int) ((1.05+Menu.player.exp/1000) * hp) ;
+		atkv = (int) ((1.25+Menu.player.exp/1200) * atk);
+
+		if (Menu.player.kite == 2) {
+			atk += 10;
+			def += 30;
+			spd += 5;
+			vs = new Sprite(0, 0, mVs2, getVertexBufferObjectManager());
+		} else if (Menu.player.kite == 3) {
+			atk += 20;
+			def += 20;
+			spd += 10;
+			vs = new Sprite(0, 0, mVs3, getVertexBufferObjectManager());
+		} else {
+			vs = new Sprite(0, 0, mVs1, getVertexBufferObjectManager());
+		}
+
+		if (Menu.player.buyBlue) {
+			atk += 10;
+			def += 5;
+			spd += 5;
+		}
+
+		vs.setScale(Menu.player.scale);
+		vs.setPosition(cameraWidth / 2, cameraHeight / 2);
+		scene2.attachChild(vs);
+
+		String i1 = box1;
+		String i2 = box2;
+		String i3 = box3;
+
+		if (!i1.equals("kosong")) {
+			if (i1.equals("fire")) {
+				item1 = new Sprite(0, 0, mFire, getVertexBufferObjectManager()) {
+					@Override
+					public boolean onAreaTouched(TouchEvent pscene2TouchEvent,
+							float X, float Y) {
+
+						if (pscene2TouchEvent.isActionDown()) {
+							if (startVs) {
+								fire = true;
+								scene2.detachChild(item1);
+							}
+						}
+
+						return true;
+					};
+				};
+			} else if (i1.equals("water")) {
+				item1 = new Sprite(0, 0, mWater, getVertexBufferObjectManager()) {
+					@Override
+					public boolean onAreaTouched(TouchEvent pscene2TouchEvent,
+							float X, float Y) {
+
+						if (pscene2TouchEvent.isActionDown()) {
+							if (startVs) {
+								water = true;
+								scene2.detachChild(item1);
+							}
+						}
+
+						return true;
+					};
+				};
+			} else if (i1.equals("shield")) {
+				item1 = new Sprite(0, 0, mShield,
+						getVertexBufferObjectManager()) {
+					@Override
+					public boolean onAreaTouched(TouchEvent pscene2TouchEvent,
+							float X, float Y) {
+
+						if (pscene2TouchEvent.isActionDown()) {
+							if (startVs) {
+								shield = true;
+								scene2.detachChild(item1);
+							}
+						}
+
+						return true;
+					};
+				};
+			}
+			item1.setScale(Menu.player.scale);
+			item1.setPosition(cameraWidth / 3, item1.getHeightScaled() / 2
+					+ Menu.player.paddingY);
+			scene2.attachChild(item1);
+			scene2.registerTouchArea(item1);
+		}
+
+		if (!i2.equals("kosong")) {
+			if (i2.equals("fire")) {
+				item2 = new Sprite(0, 0, mFire, getVertexBufferObjectManager()) {
+					@Override
+					public boolean onAreaTouched(TouchEvent pscene2TouchEvent,
+							float X, float Y) {
+
+						if (pscene2TouchEvent.isActionDown()) {
+							if (startVs) {
+								fire = true;
+								scene2.detachChild(item2);
+							}
+						}
+
+						return true;
+					};
+				};
+			} else if (i2.equals("water")) {
+				item2 = new Sprite(0, 0, mWater, getVertexBufferObjectManager()) {
+					@Override
+					public boolean onAreaTouched(TouchEvent pscene2TouchEvent,
+							float X, float Y) {
+
+						if (pscene2TouchEvent.isActionDown()) {
+							if (startVs) {
+								water = true;
+								scene2.detachChild(item2);
+							}
+						}
+
+						return true;
+					};
+				};
+			} else if (i2.equals("shield")) {
+				item2 = new Sprite(0, 0, mShield,
+						getVertexBufferObjectManager()) {
+					@Override
+					public boolean onAreaTouched(TouchEvent pscene2TouchEvent,
+							float X, float Y) {
+
+						if (pscene2TouchEvent.isActionDown()) {
+							if (startVs) {
+								shield = true;
+								scene2.detachChild(item2);
+							}
+						}
+
+						return true;
+					};
+				};
+			}
+			item2.setScale(Menu.player.scale);
+			item2.setPosition(cameraWidth / 2, item2.getHeightScaled() / 2
+					+ Menu.player.paddingY);
+			scene2.attachChild(item2);
+			scene2.registerTouchArea(item2);
+		}
+
+		if (!i3.equals("kosong")) {
+			if (i3.equals("fire")) {
+				item3 = new Sprite(0, 0, mFire, getVertexBufferObjectManager()) {
+					@Override
+					public boolean onAreaTouched(TouchEvent pscene2TouchEvent,
+							float X, float Y) {
+
+						if (pscene2TouchEvent.isActionDown()) {
+							if (startVs) {
+								fire = true;
+								scene2.detachChild(item3);
+							}
+						}
+
+						return true;
+					};
+				};
+			} else if (i3.equals("water")) {
+				item3 = new Sprite(0, 0, mWater, getVertexBufferObjectManager()) {
+					@Override
+					public boolean onAreaTouched(TouchEvent pscene2TouchEvent,
+							float X, float Y) {
+
+						if (pscene2TouchEvent.isActionDown()) {
+							if (startVs) {
+								water = true;
+								scene2.detachChild(item3);
+							}
+						}
+
+						return true;
+					};
+				};
+			} else if (i3.equals("shield")) {
+				item3 = new Sprite(0, 0, mShield,
+						getVertexBufferObjectManager()) {
+					@Override
+					public boolean onAreaTouched(TouchEvent pscene2TouchEvent,
+							float X, float Y) {
+
+						if (pscene2TouchEvent.isActionDown()) {
+							if (startVs) {
+								shield = true;
+								scene2.detachChild(item3);
+							}
+						}
+
+						return true;
+					};
+				};
+			}
+
+			item3.setScale(Menu.player.scale);
+			item3.setPosition(cameraWidth * 2 / 3, item3.getHeightScaled() / 2
+					+ Menu.player.paddingY);
+			scene2.attachChild(item3);
+			scene2.registerTouchArea(item3);
+		}
+
+	}
+	
+	private void createSpriteSpawnTimeHandler() {
+		TimerHandler spriteTimerHandler;
+		float mEffectSpawnDelay = 0.7f - spd / 300f;
+
+		spriteTimerHandler = new TimerHandler(mEffectSpawnDelay, true,
+				new ITimerCallback() {
+
+					@Override
+					public void onTimePassed(TimerHandler pTimerHandler) {
+						addArrow();
+					}
+				});
+
+		getEngine().registerUpdateHandler(spriteTimerHandler);
+	}
+	
+	public void addArrow() {
+		Random rand = new Random();
+		float tempArrow = rand.nextFloat();
+		float actualDuration = startingDuration;
+
+		if (hit >= 10) {
+			hit = 0;
+			if (startingDuration > 2f)
+				startingDuration -= 0.7f;
+		}
+
+		if (miss >= 5) {
+			miss = 0;
+			if (startingDuration < 5f)
+				startingDuration += 0.7f;
+		}
+
+		Sprite arrow = null;
+		if (tempArrow <= 0.5) {
+			for (int i = 0; i < 20; i++) {
+				if (!isActive[i]) {
+					isActive[i] = true;
+					tombolBawah[i] = new Sprite(-100, cameraHeight
+							- hitArea2.getHeightScaled() / 2
+							- Menu.player.getCameraHeight(0.15),
+							this.mTarik.deepCopy(),
+							this.getVertexBufferObjectManager());
+					tombolBawah[i].setScale(Menu.player.scale / 2);
+					arrow = tombolBawah[i];
+					break;
+				}
+			}
+
+			MoveXModifier mod = new MoveXModifier(actualDuration, -100,
+					cameraWidth + 100);
+			scene2.attachChild(arrow);
+			arrow.registerEntityModifier(mod.deepCopy());
+		} else {
+			for (int i = 0; i < 20; i++) {
+				if (!isActive2[i]) {
+					isActive2[i] = true;
+					tombolAtas[i] = new Sprite(-100, cameraHeight
+							- hitArea1.getHeightScaled() / 2
+							- Menu.player.paddingY, this.mUlur.deepCopy(),
+							this.getVertexBufferObjectManager());
+					tombolAtas[i].setScale(Menu.player.scale / 2);
+					arrow = tombolAtas[i];
+					break;
+				}
+			}
+			MoveXModifier mod = new MoveXModifier(actualDuration, -100,
+					cameraWidth + 100);
+			scene2.attachChild(arrow);
+			arrow.registerEntityModifier(mod.deepCopy());
+		}
+
+	}
+	
 	
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
@@ -487,9 +1299,9 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 			kite.setPosition(centerX, centerY);
 		}
 	}
-	
+	TimerHandler timeLimit;
 	private void timeLimitTimeHandler(){
-		TimerHandler timeLimit;
+		
 		float limit = 30f;
 		timeLimit = new TimerHandler(limit, true,
 				new ITimerCallback() {
@@ -502,8 +1314,25 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 	}
 	
 	public void onTimesUp(){
+		getEngine().unregisterUpdateHandler(timeLimit);
 		if (!gameOverDisplayed){
 			displayTimesUpText();
+		}
+		if (healthPoin <= 0){
+			displayGameOverText();
+		}
+		else if (healthPoin > 0){
+
+			scene.clearUpdateHandlers();
+			scene.clearTouchAreas();
+			scene.detachChildren();
+			//scene.dispose();
+			camera.getHUD().clearUpdateHandlers();
+			camera.getHUD().clearTouchAreas();
+			camera.getHUD().detachChildren();
+			//camera.getHUD().dispose();
+			battleModeResource();
+			battleModeScene();
 		}
 	}
 	
@@ -534,15 +1363,8 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 	private void createCoinSpriteTimeHandler(){
 		TimerHandler coinTimerHandler;
 		
-//		if (kecepatan > 0 && kecepatan <= 10){
-//			float mEffectSpawnDelay = 3f;
-//		}else if(kecepatan > 10 && kecepatan <= 19){
-//			float mEffectSpawnDelay = 1f;
-//		}else if(kecepatan > 19){
-//			float mEffectSpawnDelay = 0.5f;
-//		}
+		float mEffectSpawnDelay = (float) (3f - Math.max(2f, kecepatan/20));
 		
-	    float mEffectSpawnDelay = 3f;
 	 
 	    coinTimerHandler = new TimerHandler(mEffectSpawnDelay, true,
 				new ITimerCallback() {
@@ -876,7 +1698,7 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 
 				if (hit) {
 					removeSprite(_bird, birdRight);
-					healthPoin = healthPoin - 100;
+					healthPoin = healthPoin - 10;
 					healthPoinText.setText("Health Poin: "+ String.valueOf(healthPoin));
 					hit = false;	
 				}
@@ -892,7 +1714,7 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 					}
 					if (hit) {
 						removeSprite(_bird, birdLeft);
-						healthPoin = healthPoin - 100;
+						healthPoin = healthPoin - 10;
 						healthPoinText.setText("Health Poin: "+ String.valueOf(healthPoin));
 						hit = false;
 													
@@ -930,16 +1752,16 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		}
 		if (pointer == 1){
 			if (box1 ==""){
-				fire.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
-				scene.attachChild(fire);
+				fire1.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
+				scene.attachChild(fire1);
 			}else if (box1 == "water"){
-				scene.detachChild(water);
-				fire.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
-				scene.attachChild(fire);
+				scene.detachChild(water1);
+				fire1.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
+				scene.attachChild(fire1);
 			}else if (box1 == "shield"){
-				scene.detachChild(shield);
-				fire.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
-				scene.attachChild(fire);
+				scene.detachChild(shield1);
+				fire1.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
+				scene.attachChild(fire1);
 			}
 			box1 = "fire";
 			++pointer;
@@ -984,16 +1806,16 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		}
 		if (pointer == 1){
 			if (box1 ==""){
-				water.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
-				scene.attachChild(water);
+				water1.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
+				scene.attachChild(water1);
 			}else if (box1 == "fire"){
-				scene.detachChild(fire);
-				water.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
-				scene.attachChild(water);
+				scene.detachChild(fire1);
+				water1.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
+				scene.attachChild(water1);
 			}else if (box1 == "shield"){
-				scene.detachChild(shield);
-				water.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
-				scene.attachChild(water);
+				scene.detachChild(shield1);
+				water1.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
+				scene.attachChild(water1);
 			}
 			box1 = "water";
 			++pointer;
@@ -1038,16 +1860,16 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 		}
 		if (pointer == 1){
 			if (box1 ==""){
-				shield.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
-				scene.attachChild(shield);
+				shield1.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
+				scene.attachChild(shield1);
 			}else if (box1 == "fire"){
-				scene.detachChild(fire);
-				shield.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
-				scene.attachChild(shield);
+				scene.detachChild(fire1);
+				shield1.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
+				scene.attachChild(shield1);
 			}else if (box1 == "water"){
-				scene.detachChild(water);
-				shield.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
-				scene.attachChild(shield);
+				scene.detachChild(water1);
+				shield1.setPosition(cameraWidth/3 - (powerBox1.getScaleCenterX()/2), (powerBox1.getHeightScaled()/2) + paddingY);
+				scene.attachChild(shield1);
 			}
 			box1 = "shield";
 			++pointer;
@@ -1094,7 +1916,7 @@ public class AugmentedActivity extends BaseAugmentedRealityGameActivity implemen
 	private void createControllers(){
 			
 		final int tL = cameraHeight - (int)kite.getHeightScaled() - (int)paddingY;
-		final int bL = (int) paddingY;
+		final int bL = (int) paddingY + (int) powerBox1.getHeightScaled();
 		
 		/*Handler untuk button*/
 		tUp = new TimerHandler(0.007f, true,
